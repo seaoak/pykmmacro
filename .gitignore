@@ -172,3 +172,34 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+#============================================================================
+
+# venv files in Windows (`pyvenv.cfg` contains personal information such as USER_PROFILE folder name)
+/include
+/Lib
+/pyvenv.cfg
+/Scripts
+
+# log files
+/*.log
+/log.*
+
+# backup files
+*.20[0-9][0-9][01][0-9][0123][0-9][a-z]
+*_20[0-9][0-9][01][0-9][0123][0-9][a-z]
+*-20[0-9][0-9][01][0-9][0123][0-9][a-z]
+
+# temporally files
+x
+xx
+xxx
+x.*
+y
+yy
+yyy
+y.*
+z
+zz
+zzz
+z.*
