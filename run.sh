@@ -17,8 +17,8 @@ set -x
 
 date -R
 uname -a
-#which python
+which python
 python -VV
 python -m pip freeze | tee ./requirements.txt
 
-python $*
+exec python $*
