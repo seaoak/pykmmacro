@@ -12,6 +12,9 @@ _DELAY_A_MOMENT = 0.2
 #=============================================================================
 # Public functions
 
+def my_assert_eq(l, r, *rest):
+    assert l == r, (l, r, *rest)
+
 def my_unique(seq, *, key_func=lambda x: x):
     """
     Remove duplicated items in a sequence.
