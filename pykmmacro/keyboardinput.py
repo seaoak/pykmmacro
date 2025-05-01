@@ -146,25 +146,25 @@ def _cleanup():
     keys = [key for key in pending_keys.keys()] # shallow copy
     for key in keys:
         _key_up(key)
-    assert(not pending_keys)
+    assert not pending_keys
 
 def _key_down(key):
     name, keycode = key
     print(f"keyDown: {name}")
-    assert(name in _ALL_KEY_DICT)
-    assert(keycode == _ALL_KEY_DICT[name])
-    assert(keycode in pydirectinput.KEYBOARD_MAPPING)
-    assert(not (key in pending_keys))
+    assert name in _ALL_KEY_DICT
+    assert keycode == _ALL_KEY_DICT[name]
+    assert keycode in pydirectinput.KEYBOARD_MAPPING
+    assert not (key in pending_keys)
     pending_keys[key] = True
     pydirectinput.keyDown(keycode)
 
 def _key_up(key):
     name, keycode = key
     print(f"keyUp: {name}")
-    assert(name in _ALL_KEY_DICT)
-    assert(keycode == _ALL_KEY_DICT[name])
-    assert(keycode in pydirectinput.KEYBOARD_MAPPING)
-    assert(key in pending_keys)
+    assert name in _ALL_KEY_DICT
+    assert keycode == _ALL_KEY_DICT[name]
+    assert keycode in pydirectinput.KEYBOARD_MAPPING
+    assert key in pending_keys
     pydirectinput.keyUp(keycode)
     del pending_keys[key]
 
@@ -183,7 +183,7 @@ def with_modifier_keys(func, modifier=MODIFIER.NONE, /):
             bitmap |= _MODIFIER_DICT[name]
             _key_down(getattr(_MODIFIER_KEY, name))
             my_sleep_a_moment()
-        assert(0 == modifier & ~bitmap) # ensure that undefined bit are not set
+        assert 0 == modifier & ~bitmap # ensure that undefined bit are not set
         func()
     finally:
         if pending_keys:
