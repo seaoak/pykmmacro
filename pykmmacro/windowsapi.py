@@ -1,4 +1,5 @@
 from collections import namedtuple
+from dataclasses import dataclass
 
 import win32api
 import win32gui
@@ -153,20 +154,14 @@ def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offs
 #=============================================================================
 # Public class
 
+@dataclass(frozen=True)
 class PositionInScreen:
     """
     Represent position in screen
     """
 
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
-
-    def __repr__(self):
-        return f"{__name__}.{__class__.__name__}({self.x}, {self.y})"
+    x: int
+    y: int
 
     def __str__(self):
         return f"{__class__.__name__}({self.x}, {self.y})"
@@ -182,21 +177,15 @@ class PositionInScreen:
     def to_offset_in_client_region_of_active_window(self) -> OffsetInWindow:
         return _convert_position_in_screen_to_offset_in_client_region_of_active_window(self)
 
+@dataclass(frozen=True)
 class OffsetInScreen:
     """
     Represent offset in screen.
     This can be used for offset in screenshot of whole desktop.
     """
 
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
-
-    def __repr__(self):
-        return f"{__name__}.{__class__.__name__}({self.x}, {self.y})"
+    x: int
+    y: int
 
     def __str__(self):
         return f"{__class__.__name__}({self.x}, {self.y})"
@@ -209,20 +198,14 @@ class OffsetInScreen:
     def to_position_in_screen(self) -> PositionInScreen:
         return _convert_offset_in_screen_to_position_in_screen(self)
 
+@dataclass(frozen=True)
 class OffsetInWindow:
     """
     Represent offset in client area of active window
     """
 
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-    
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
-
-    def __repr__(self):
-        return f"{__name__}.{__class__.__name__}({self.x}, {self.y})"
+    x: int
+    y: int
 
     def __str__(self):
         return f"{__class__.__name__}({self.x}, {self.y})"
