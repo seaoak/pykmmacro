@@ -51,3 +51,6 @@ def my_sleep_with_random(period_sec, /, *, variation_ratio=0.4):
 
 def my_sleep_a_moment(period_sec=_DELAY_A_MOMENT, /):
     my_sleep_with_random(period_sec, variation_ratio=0.2)
+
+def my_get_timestamp_ms() -> int:
+    return time.time_ns() // (1000 * 1000)
