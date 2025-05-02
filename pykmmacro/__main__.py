@@ -43,8 +43,9 @@ def main():
         diff_x = 2565 - 2581 # difference from getpixel of KMmacro
         diff_y = 2105 - 2167 # difference from getpixel of KMmacro
         screenshot = Screenshot()
-        if screenshot.window_info.title != "FINAL FANTASY XIV":
-            print(f"unexpected window title: {screenshot.window_info.title!r}")
+        window_info = screenshot.window_info
+        if window_info.title != "FINAL FANTASY XIV":
+            print(f"unexpected window title: {window_info.title!r}")
             return
         for expected_color, offset in ((Color(0xff, 0xff, 0xe2), OffsetInWindow(2581, 2167)), (Color(0x65, 0x67, 0x65), OffsetInWindow(2330, 2181))):
             offset = offset.move(diff_x, diff_y)
@@ -53,9 +54,8 @@ def main():
             width = 32
             offset2 = screenshot.search_pixel(expected_color, offset, width)
             print(f"search_pixel({expected_color!s}, {offset!r}, {width}): {offset2!r}")
-            client_rect_width = window_info.width - window_info.padding_left - window_info.padding_right
-            client_rect_height = window_info.height - window_info.padding_top - window_info.padding_bottom
-            for i, offset2 in enumerate(screenshot.scan_pixel(expected_color, OffsetInWindow(0, 0), client_rect_width, client_rect_height)):
+            base = OffsetInWindow(window_info.client_left, window_info.client_top)
+            for i, offset2 in enumerate(screenshot.scan_pixel(expected_color, base, window_info.client_width, window_info.client_height)):
                 print(f"scan_pixel({expected_color!s})[{i}]: {offset2!r}")
         return
 

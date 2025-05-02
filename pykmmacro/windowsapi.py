@@ -245,6 +245,12 @@ def get_active_window_info():
         "padding_right":  padding_width,
         "padding_bottom": padding_width,
         "padding_left":   padding_width,
+        "client_top":    client_rect.top,
+        "client_right":  client_rect.right,
+        "client_bottom": client_rect.bottom,
+        "client_left":   client_rect.left,
+        "client_width":  client_rect.width,
+        "client_height": client_rect.height,
     }
     info = namedtuple("WindowInfo", info.keys())(**info)
     #print(f"{info=}")
