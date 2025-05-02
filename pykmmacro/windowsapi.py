@@ -72,17 +72,14 @@ def _get_all_display_info():
 
     return infos
 
-def _convert_position_in_screen_to_offset_in_screen(pos: PositionInScreen) -> OffsetInScreen:
+def _convert_position_in_screen_to_offset_in_screen(pos: PositionInScreen, /, *, screen_info=None) -> OffsetInScreen:
     """
     Convert `pos` to offset in screen.
     `pos` should be in client region of active window.
     And also `pos` should be in screen (active window may be beyond screen edge)
     """
-    if True:
-        offset_in_client_region_of_active_window = _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos)
-        pos2 = _convert_offset_in_client_region_of_active_window_to_position_in_screen(offset_in_client_region_of_active_window)
-        assert pos2 == pos
-    screen_info = get_screen_info()
+    if screen_info is None:
+        screen_info = get_screen_info()
     offset_x = screen_info.origin.x + pos.x
     offset_y = screen_info.origin.y + pos.y
     assert offset_x >= 0
@@ -91,19 +88,22 @@ def _convert_position_in_screen_to_offset_in_screen(pos: PositionInScreen) -> Of
     assert offset_y < screen_info.size.height
     return OffsetInScreen(offset_x, offset_y)
 
-def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos: PositionInScreen) -> OffsetInWindow:
+def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos: PositionInScreen, /, *, window_info=None, screen_info=None) -> OffsetInWindow:
     """
     Convert `pos` to offset in client region of active window.
     `pos` should be in client region of active window.
     And also `pos` should be in screen (active window may be beyond screen edge)
     """
     if True:
-        screen_info = get_screen_info()
+        if screen_info is None:
+            screen_info = get_screen_info()
         assert pos.x >= screen_info.box.left
         assert pos.x < screen_info.box.right
         assert pos.y >= screen_info.box.top
         assert pos.y < screen_info.box.bottom
-    window_info = get_active_window_info()
+
+    if window_info is None:
+        window_info = get_active_window_info()
     assert pos.x >= window_info.left + window_info.padding_left
     assert pos.x < window_info.right - window_info.padding_right
     assert pos.y >= window_info.top + window_info.padding_top
@@ -116,8 +116,9 @@ def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos:
     assert offset_y < window_info.height - window_info.padding_top - window_info.padding_bottom
     return OffsetInWindow(offset_x, offset_y)
 
-def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen) -> PositionInScreen:
-    screen_info = get_screen_info()
+def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen, /, *, screen_info=None) -> PositionInScreen:
+    if screen_info is None:
+        screen_info = get_screen_info()
     assert offset.x >= 0
     assert offset.y >= 0
     assert offset.x < screen_info.size.width
@@ -130,13 +131,14 @@ def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen) -> P
     assert y < screen_info.box.bottom
     return PositionInScreen(x, y)
 
-def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offset: OffsetInWindow) -> PositionInScreen:
+def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offset: OffsetInWindow, /, *, window_info=None, screen_info=None) -> PositionInScreen:
     """
     Convert `offset` to position in screen.
     `offset` should be in client region of active window.
     And also `offset` should be in screen (active window may be beyond screen edge)
     """
-    window_info = get_active_window_info()
+    if window_info is None:
+        window_info = get_active_window_info()
     assert offset.x >= 0
     assert offset.y >= 0
     assert offset.x < window_info.width - window_info.padding_right - window_info.padding_left
@@ -144,7 +146,8 @@ def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offs
     x = window_info.left + window_info.padding_left + offset.x
     y = window_info.top + window_info.padding_top + offset.y
     if True:
-        screen_info = get_screen_info()
+        if screen_info is None:
+            screen_info = get_screen_info()
         assert x >= screen_info.box.left
         assert x < screen_info.box.right
         assert y >= screen_info.box.top
@@ -167,15 +170,13 @@ class PositionInScreen:
         return f"{__class__.__name__}({self.x}, {self.y})"
 
     def move(self, diff_x, diff_y) -> PositionInScreen:
-        obj = PositionInScreen(self.x + diff_x, self.y + diff_y)
-        assert obj == obj.to_offset_in_client_region_of_active_window().to_position_in_screen()
-        return obj
+        return PositionInScreen(self.x + diff_x, self.y + diff_y)
 
-    def to_offset_in_screen(self) -> OffsetInScreen:
-        return _convert_position_in_screen_to_offset_in_screen(self)
+    def to_offset_in_screen(self, /, *, screen_info=None) -> OffsetInScreen:
+        return _convert_position_in_screen_to_offset_in_screen(self, screen_info=screen_info)
     
-    def to_offset_in_client_region_of_active_window(self) -> OffsetInWindow:
-        return _convert_position_in_screen_to_offset_in_client_region_of_active_window(self)
+    def to_offset_in_client_region_of_active_window(self, /, *, window_info=None, screen_info=None) -> OffsetInWindow:
+        return _convert_position_in_screen_to_offset_in_client_region_of_active_window(self, window_info=window_info, screen_info=screen_info)
 
 @dataclass(frozen=True)
 class OffsetInScreen:
@@ -191,12 +192,10 @@ class OffsetInScreen:
         return f"{__class__.__name__}({self.x}, {self.y})"
 
     def move(self, diff_x, diff_y) -> OffsetInScreen:
-        obj = OffsetInScreen(self.x + diff_x, self.y + diff_y)
-        my_assert_eq(obj, obj.to_position_in_screen().to_offset_in_screen(), obj.to_position_in_screen())
-        return obj
+        return OffsetInScreen(self.x + diff_x, self.y + diff_y)
 
-    def to_position_in_screen(self) -> PositionInScreen:
-        return _convert_offset_in_screen_to_position_in_screen(self)
+    def to_position_in_screen(self, /, *, screen_info=None) -> PositionInScreen:
+        return _convert_offset_in_screen_to_position_in_screen(self, screen_info=screen_info)
 
 @dataclass(frozen=True)
 class OffsetInWindow:
@@ -211,13 +210,10 @@ class OffsetInWindow:
         return f"{__class__.__name__}({self.x}, {self.y})"
     
     def move(self, diff_x, diff_y) -> OffsetInWindow:
-        obj = OffsetInWindow(self.x + diff_x, self.y + diff_y)
-        my_assert_eq(obj, obj.to_position_in_screen().to_offset_in_client_region_of_active_window(), obj.to_position_in_screen())
-        assert obj == obj.to_position_in_screen().to_offset_in_client_region_of_active_window()
-        return obj
+        return OffsetInWindow(self.x + diff_x, self.y + diff_y)
 
-    def to_position_in_screen(self) -> PositionInScreen:
-        return _convert_offset_in_client_region_of_active_window_to_position_in_screen(self)
+    def to_position_in_screen(self, /, *, window_info=None, screen_info=None) -> PositionInScreen:
+        return _convert_offset_in_client_region_of_active_window_to_position_in_screen(self, window_info=window_info, screen_info=screen_info)
 
 #=============================================================================
 # Public function

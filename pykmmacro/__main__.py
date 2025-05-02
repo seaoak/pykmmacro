@@ -5,7 +5,7 @@ from . import *
 def main():
     print("Hello world!")
 
-    if True:
+    if False:
         target_key = ModifierKey.LSHIFT
         print("setup keyboard listener")
         is_pressed = setup_keyboard_listener()
@@ -37,6 +37,27 @@ def main():
         print(f"{offset_in_window.move(3, 5)!r}")
         print(f"{pos.move(7, 11)}")
         print(f"{offset_in_screen.move(13, 17)}")
+
+    if True:
+        print("take screenshot")
+        diff_x = 2565 - 2581 # difference from getpixel of KMmacro
+        diff_y = 2105 - 2167 # difference from getpixel of KMmacro
+        screenshot = Screenshot()
+        if screenshot.window_info.title != "FINAL FANTASY XIV":
+            print(f"unexpected window title: {screenshot.window_info.title!r}")
+            return
+        for expected_color, offset in ((Color(0xff, 0xff, 0xe2), OffsetInWindow(2581, 2167)), (Color(0x65, 0x67, 0x65), OffsetInWindow(2330, 2181))):
+            offset = offset.move(diff_x, diff_y)
+            color = screenshot.get_pixel(offset)
+            print(f"get_pixel({offset!r}): {color!s}")
+            width = 32
+            offset2 = screenshot.search_pixel(expected_color, offset, width)
+            print(f"search_pixel({expected_color!s}, {offset!r}, {width}): {offset2!r}")
+            client_rect_width = window_info.width - window_info.padding_left - window_info.padding_right
+            client_rect_height = window_info.height - window_info.padding_top - window_info.padding_bottom
+            for i, offset2 in enumerate(screenshot.scan_pixel(expected_color, OffsetInWindow(0, 0), client_rect_width, client_rect_height)):
+                print(f"scan_pixel({expected_color!s})[{i}]: {offset2!r}")
+        return
 
     if False:
         print("sleep 3 sec")
