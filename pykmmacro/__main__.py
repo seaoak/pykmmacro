@@ -46,6 +46,9 @@ def main():
         key_press(NORMAL_KEY.O, MODIFIER.CTRL | MODIFIER.SHIFT)
 
     if get_active_window_info().title == "FINAL FANTASY XIV":
+        pos = get_mouse_position()
+        print(f"{pos=!r}")
+
         # click "Dig" icon at the slot 8 of hotbar 1
         pos = PositionInScreen(-1267, 2535)
         offset = pos.to_offset_in_client_region_of_active_window()
@@ -56,6 +59,8 @@ def main():
         print(f"mouse_move_relative: {diff=!r}")
         mouse_move_relative(*diff)
         my_sleep_a_moment()
+        pos = get_mouse_position().to_offset_in_client_region_of_active_window()
+        print(f"{pos=!r}")
         button = MOUSE_BUTTON.LEFT
         print(f"mouse_click: {button}")
         mouse_click(button)
