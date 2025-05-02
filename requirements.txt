@@ -1,2 +1,4 @@
 PyDirectInput==1.0.4
+pynput==1.8.1
 pywin32==310
+six==1.17.0

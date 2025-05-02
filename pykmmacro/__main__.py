@@ -5,6 +5,18 @@ from . import *
 def main():
     print("Hello world!")
 
+    if True:
+        target_key = ModifierKey.LSHIFT
+        print("setup keyboard listener")
+        is_pressed = setup_keyboard_listener()
+        print(f"waiting for {target_key.keyname} key")
+        for count in range(10):
+            while not is_pressed(target_key):
+                my_sleep_a_moment()
+            print(f"detect {target_key.keyname} key ({count=})")
+        print("finish")
+        return
+
     print("sleep 3 sec")
     time.sleep(3)
 
