@@ -13,6 +13,13 @@ class Color:
     def __str__(self):
         return f"#{self.to_int():06X}"
 
+    def from_int(value: int):
+        assert 0 <= value and value <= 0xffffff
+        red =   (value >> 16) & 0xff
+        green = (value >>  8) & 0xff
+        blue  =  value        & 0xff
+        return Color(red, green, blue)
+
     def to_int(self) -> int:
         assert 0 <= self.red and self.red <= 0xff
         assert 0 <= self.green and self.green <= 0xff
