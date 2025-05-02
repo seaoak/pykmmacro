@@ -39,18 +39,15 @@ class Screenshot:
         assert height % 2 == 0
         assert center.x >= width // 2
         assert center.y >= height // 2
-        base = OffsetInWindow(center.x - width // 2, center.y - height // 2)
-        for h in range(height):
-            for w in range(width):
-                offset2 = base.move(w, h)
-                color = self.get_pixel(offset2)
-                # print(f"get_pixel({offset2!r}): {color!s}")
-                if color == expected_color:
-                    return offset2
-
+        base = center.move(-1 * width // 2, -1 * height // 2)
+        for offset in self.scan_pixel(expected_color, base, width, height):
+            return offset # return immediately at the first hit
         return None
 
-    def scan_pixel(self, expected_color:Color, base: OffsetInWindow, width: int, height: int = 0):
+    def scan_pixel(self, expected_color:Color, base: OffsetInWindow, width: int, height: int = 0, /, *, debug_print=False):
+        """
+        Generate offsets in active window matched to expected color in specified region of active window.
+        """
         if not height:
             height = width
         assert width > 0
@@ -61,5 +58,7 @@ class Screenshot:
             for w in range(width):
                 offset2 = base.move(w, h)
                 color = self.get_pixel(offset2)
+                if debug_print:
+                    print(f"scan_pixel: {offset2.x}, {offset2.y} : {color!s}")
                 if color == expected_color:
                     yield offset2
