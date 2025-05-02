@@ -5,6 +5,15 @@ from . import *
 def main():
     print("Hello world!")
 
+    if True:
+        print("show MessageBox")
+        show_dialog("his is a sample text")
+        time.sleep(1)
+        print("show MessageBox with Japanese text")
+        show_dialog("日本語メッセージのテスト")
+        print("finish")
+        return
+
     if False:
         target_key = ModifierKey.LSHIFT
         print("setup keyboard listener")

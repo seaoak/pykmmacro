@@ -292,3 +292,6 @@ def get_screen_info():
     result = namedtuple("ScreenInfo", result.keys())(**result)
     #print(result)
     return result
+
+def show_dialog(text: str) -> None:
+    win32gui.MessageBox(None, text, "PyKMmacro Dialog", 1)
