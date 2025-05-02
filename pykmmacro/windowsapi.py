@@ -220,7 +220,11 @@ class OffsetInWindow:
 
 def get_active_window_info():
     # https://github.com/asweigart/PyGetWindow/blob/master/src/pygetwindow/_pygetwindow_win.py
-    hwnd = win32gui.GetForegroundWindow()
+    timestamp_at_start = my_get_timestamp_ms()
+    while (hwnd := win32gui.GetForegroundWindow()) == 0:
+        # may be switching window now
+        assert my_get_timestamp_ms() - timestamp_at_start < 1000
+        my_sleep_a_moment()
     assert hwnd != 0
     client_rect = _get_client_rect(hwnd)
     window_rect = _get_window_rect(hwnd)
