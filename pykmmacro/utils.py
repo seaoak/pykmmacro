@@ -1,3 +1,4 @@
+import itertools
 import random
 import time
 
@@ -54,3 +55,21 @@ def my_sleep_a_moment(period_sec=_DELAY_A_MOMENT, /):
 
 def my_get_timestamp_ms() -> int:
     return time.time_ns() // (1000 * 1000)
+
+def is_in_rect(pos: tuple[int, int], rect) -> bool:
+    assert rect.right - rect.left > 0
+    assert rect.bottom - rect.top > 0
+    x, y = pos
+    return rect.left <= x and x < rect.right and rect.top <= y and y < rect.bottom
+
+def is_rect_intersect(rect1, rect2) -> bool:
+    assert rect1.right - rect1.left > 0
+    assert rect1.bottom - rect1.top > 0
+    assert rect2.right - rect2.left > 0
+    assert rect2.bottom - rect2.top > 0
+
+    def get_four_corners(rect):
+        return itertools.product((rect.left, rect.right), (rect.top, rect.bottom))
+
+    return (any((is_in_rect(pos, rect2) for pos in get_four_corners(rect1))) or
+            any((is_in_rect(pos, rect1) for pos in get_four_corners(rect2))))
