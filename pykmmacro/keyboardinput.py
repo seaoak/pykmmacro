@@ -153,30 +153,30 @@ _ModifierKey.__init__ = my_fail_always # disable constructor
 #=============================================================================
 # Shared variables
 
-pending_keys: dict[AllKey, bool] = dict()
+_pending_keys: set[AllKey] = set()
 
 #=============================================================================
 # Private functions
 
 def _cleanup() -> None:
-    keys = [key for key in pending_keys.keys()] # shallow copy
+    keys = [key for key in _pending_keys] # shallow copy because `_pending_keys` is modified in iteration
     for key in keys:
         _key_up(key)
-    assert not pending_keys
+    assert not _pending_keys
 
 def _key_down(key: AllKey) -> None:
     print(f"keyDown: {key.name}")
     assert key.keycode in pydirectinput.KEYBOARD_MAPPING
-    assert not (key in pending_keys)
-    pending_keys[key] = True
+    assert key not in _pending_keys
+    _pending_keys.add(key)
     pydirectinput.keyDown(key.keycode)
 
 def _key_up(key: AllKey) -> None:
     print(f"keyUp: {key.name}")
     assert key.keycode in pydirectinput.KEYBOARD_MAPPING
-    assert key in pending_keys
+    assert key in _pending_keys
     pydirectinput.keyUp(key.keycode)
-    del pending_keys[key]
+    _pending_keys.remove(key)
 
 #=============================================================================
 # Public functions
@@ -196,7 +196,7 @@ def with_modifier_keys(func, modifier=MODIFIER.NONE, /):
         assert 0 == modifier & ~bitmap # ensure that undefined bit are not set
         func()
     finally:
-        if pending_keys:
+        if _pending_keys:
             my_sleep_a_moment()
             _cleanup()
             my_sleep_a_moment()
