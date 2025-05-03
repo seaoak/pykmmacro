@@ -50,6 +50,8 @@ def _get_client_rect(hwnd):
     rect["width"] = rect["right"] - rect["left"]
     rect["height"] = rect["bottom"] - rect["top"]
     rect = namedtuple("ClientRect", rect.keys())(**rect)
+    assert rect.left <= rect.right
+    assert rect.top <= rect.bottom
     return rect
 
 def _get_window_rect(hwnd):
@@ -61,6 +63,8 @@ def _get_window_rect(hwnd):
     rect["width"] = rect["right"] - rect["left"]
     rect["height"] = rect["bottom"] - rect["top"]
     rect = namedtuple("WindowRect", rect.keys())(**rect)
+    assert rect.left <= rect.right
+    assert rect.top <= rect.bottom
     return rect
 
 def _get_window_title(hwnd):
