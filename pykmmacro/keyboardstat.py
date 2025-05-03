@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pynput import keyboard
 
 from .keyboardinput import MODIFIER
+from .utils import *
 
 #=============================================================================
 # Key mapping
@@ -32,9 +33,7 @@ class ModifierKey:
 for keyname in _MODIFIER_KEY_DICT.keys():
     setattr(ModifierKey, keyname, ModifierKey(keyname))
 
-def _fail(*_args):
-    raise RuntimeError("the constructor of class ModifierKey is private")
-ModifierKey.__init__ = _fail # disable constructor
+ModifierKey.__init__ = my_fail_always # disable constructor
 
 #=============================================================================
 # Public function

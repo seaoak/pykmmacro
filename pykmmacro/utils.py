@@ -8,10 +8,19 @@ import time
 _DELAY_A_MOMENT = 0.2
 
 #=============================================================================
+# Exception
+
+class MyFailAlways(Exception):
+    pass
+
+#=============================================================================
 # Private functions
 
 #=============================================================================
 # Public functions
+
+def my_fail_always():
+    raise MyFailAlways()
 
 def my_assert_eq(l, r, *rest):
     assert l == r, (l, r, *rest)

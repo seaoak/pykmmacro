@@ -5,14 +5,13 @@ from . import *
 def main():
     print("Hello world!")
 
-    if True:
+    if False:
         print("show MessageBox")
         show_dialog("his is a sample text")
         time.sleep(1)
         print("show MessageBox with Japanese text")
         show_dialog("日本語メッセージのテスト")
         print("finish")
-        return
 
     if False:
         target_key = ModifierKey.LSHIFT
@@ -29,7 +28,7 @@ def main():
     print("sleep 3 sec")
     time.sleep(3)
 
-    if True:
+    if False:
         screen_info = get_screen_info()
         print(f"{screen_info.size=!r}")
         window_info = get_active_window_info()
@@ -47,7 +46,7 @@ def main():
         print(f"{pos.move(7, 11)}")
         print(f"{offset_in_screen.move(13, 17)}")
 
-    if True:
+    if False:
         print("take screenshot")
         diff_x = 2565 - 2581 # difference from getpixel of KMmacro
         diff_y = 2105 - 2167 # difference from getpixel of KMmacro
@@ -68,24 +67,21 @@ def main():
                 print(f"scan_pixel({expected_color!s})[{i}]: {offset2!r}")
         return
 
-    if False:
-        print("sleep 3 sec")
-        time.sleep(3)
-
+    if True:
         print("press 'A'")
-        key_press(NORMAL_KEY.A)
+        key_press(NormalKey.A)
 
         print("press ']'")
-        key_press(NORMAL_KEY.RightSquareBracket)
+        key_press(NormalKey.RightSquareBracket)
 
         print("press 'NUM*'")
-        key_press(NORMAL_KEY.NUM_Multiply)
+        key_press(NormalKey.NUM_Multiply)
 
         print("press '1' with SHIFT key")
-        key_press(NORMAL_KEY.One, MODIFIER.SHIFT)
+        key_press(NormalKey.One, MODIFIER.SHIFT)
 
         print("press Ctrl+Shift+O")
-        key_press(NORMAL_KEY.O, MODIFIER.CTRL | MODIFIER.SHIFT)
+        key_press(NormalKey.O, MODIFIER.CTRL | MODIFIER.SHIFT)
 
     if get_active_window_info().title == "FINAL FANTASY XIV":
         pos = get_mouse_position()

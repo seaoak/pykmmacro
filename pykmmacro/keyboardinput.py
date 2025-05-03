@@ -1,4 +1,5 @@
 from collections import namedtuple
+from dataclasses import dataclass
 
 import pydirectinput
 
@@ -47,8 +48,6 @@ _MODIFIER_KEY_DICT = {
     'LALT': 'altleft',
     'LWIN': 'winleft',
 }
-
-_MODIFIER_KEY = namedtuple("ModifierKey", _MODIFIER_KEY_DICT.keys())(**dict(((name, (name, value)) for name, value in _MODIFIER_KEY_DICT.items())))
 
 _NORMAL_KEY_DICT = ({
     'CapsLock': 'capslock',
@@ -130,42 +129,53 @@ _NORMAL_KEY_DICT = ({
     | dict(((chr(x), chr(x)) for x in range(ord('1'), ord('0')))) # numbers
 )
 
-NORMAL_KEY = namedtuple("NormalKey", _NORMAL_KEY_DICT.keys())(**dict(((name, (name, value)) for name, value in _NORMAL_KEY_DICT.items())))
+@dataclass(frozen=True)
+class AllKey:
+    name: str
+    keycode: str | int
 
-_ALL_KEY_DICT = _MODIFIER_KEY_DICT | _NORMAL_KEY_DICT
+class NormalKey(AllKey):
+    pass
+
+class _ModifierKey(AllKey):
+    pass
+
+for name, keycode in _NORMAL_KEY_DICT.items():
+    setattr(NormalKey, name, NormalKey(name, keycode))
+
+for name, keycode in _MODIFIER_KEY_DICT.items():
+    bitmap = _MODIFIER_DICT[name]
+    setattr(_ModifierKey, name, _ModifierKey(name, keycode))
+
+NormalKey.__init__ = my_fail_always # disable constructor
+_ModifierKey.__init__ = my_fail_always # disable constructor
 
 #=============================================================================
 # Shared variables
 
-pending_keys = dict()
+pending_keys: dict[AllKey, bool] = dict()
 
 #=============================================================================
 # Private functions
 
-def _cleanup():
+def _cleanup() -> None:
     keys = [key for key in pending_keys.keys()] # shallow copy
     for key in keys:
         _key_up(key)
     assert not pending_keys
 
-def _key_down(key):
-    name, keycode = key
-    print(f"keyDown: {name}")
-    assert name in _ALL_KEY_DICT
-    assert keycode == _ALL_KEY_DICT[name]
-    assert keycode in pydirectinput.KEYBOARD_MAPPING
+def _key_down(key: AllKey) -> None:
+    print(f"keyDown: {key.name}")
+    assert key.keycode in pydirectinput.KEYBOARD_MAPPING
     assert not (key in pending_keys)
     pending_keys[key] = True
-    pydirectinput.keyDown(keycode)
+    pydirectinput.keyDown(key.keycode)
 
-def _key_up(key):
-    name, keycode = key
-    print(f"keyUp: {name}")
-    assert name in _ALL_KEY_DICT
-    assert keycode == _ALL_KEY_DICT[name]
-    assert keycode in pydirectinput.KEYBOARD_MAPPING
+def _key_up(key: AllKey) -> None:
+    print(f"keyUp: {key.name}")
+    assert key.keycode in pydirectinput.KEYBOARD_MAPPING
     assert key in pending_keys
-    pydirectinput.keyUp(keycode)
+    pydirectinput.keyUp(key.keycode)
     del pending_keys[key]
 
 #=============================================================================
@@ -181,7 +191,7 @@ def with_modifier_keys(func, modifier=MODIFIER.NONE, /):
         bitmap = 0
         for name in selected_keys:
             bitmap |= _MODIFIER_DICT[name]
-            _key_down(getattr(_MODIFIER_KEY, name))
+            _key_down(getattr(_ModifierKey, name))
             my_sleep_a_moment()
         assert 0 == modifier & ~bitmap # ensure that undefined bit are not set
         func()
@@ -191,7 +201,7 @@ def with_modifier_keys(func, modifier=MODIFIER.NONE, /):
             _cleanup()
             my_sleep_a_moment()
 
-def key_press(key, modifier=MODIFIER.NONE, /):
+def key_press(key: NormalKey | None, modifier=MODIFIER.NONE, /) -> None:
     """
     Press key with modifier keys.
     Modifier keys can be specified as a bitmap (use bit-OR to specify multiple modifier keys).
