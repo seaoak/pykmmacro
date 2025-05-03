@@ -124,23 +124,18 @@ def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos:
     if True:
         if screen_info is None:
             screen_info = get_screen_info()
-        assert pos.x >= screen_info.box.left
-        assert pos.x < screen_info.box.right
-        assert pos.y >= screen_info.box.top
-        assert pos.y < screen_info.box.bottom
+        assert is_in_rect((pos.x, pos.y), screen_info.box)
 
     if window_info is None:
         window_info = get_active_window_info()
-    assert pos.x >= window_info.left + window_info.padding_left
-    assert pos.x < window_info.right - window_info.padding_right
-    assert pos.y >= window_info.top + window_info.padding_top
-    assert pos.y < window_info.bottom - window_info.padding_bottom
-    offset_x = pos.x - window_info.left - window_info.padding_left
-    offset_y = pos.y - window_info.top - window_info.padding_top
+
+    assert is_in_rect((pos.x, pos.y), window_info.client)
+    offset_x = pos.x - window_info.left - window_info.padding.left
+    offset_y = pos.y - window_info.top - window_info.padding.top
     assert offset_x >= 0
     assert offset_y >= 0
-    assert offset_x < window_info.width - window_info.padding_right - window_info.padding_left
-    assert offset_y < window_info.height - window_info.padding_top - window_info.padding_bottom
+    assert offset_x < window_info.client.width
+    assert offset_y < window_info.client.height
     return OffsetInWindow(offset_x, offset_y)
 
 def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen, /, *, screen_info=None) -> PositionInScreen:
@@ -152,10 +147,7 @@ def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen, /, *
     assert offset.y < screen_info.size.height
     x = offset.x - screen_info.origin.x
     y = offset.y - screen_info.origin.y
-    assert x >= screen_info.box.left
-    assert x < screen_info.box.right
-    assert y >= screen_info.box.top
-    assert y < screen_info.box.bottom
+    assert is_in_rect((x, y), screen_info.box)
     return PositionInScreen(x, y)
 
 def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offset: OffsetInWindow, /, *, window_info=None, screen_info=None) -> PositionInScreen:
@@ -168,17 +160,14 @@ def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offs
         window_info = get_active_window_info()
     assert offset.x >= 0
     assert offset.y >= 0
-    assert offset.x < window_info.width - window_info.padding_right - window_info.padding_left
-    assert offset.y < window_info.height - window_info.padding_top - window_info.padding_bottom
-    x = window_info.left + window_info.padding_left + offset.x
-    y = window_info.top + window_info.padding_top + offset.y
+    assert offset.x < window_info.client.width
+    assert offset.y < window_info.client.height
+    x = window_info.left + window_info.padding.left + offset.x
+    y = window_info.top + window_info.padding.top + offset.y
     if True:
         if screen_info is None:
             screen_info = get_screen_info()
-        assert x >= screen_info.box.left
-        assert x < screen_info.box.right
-        assert y >= screen_info.box.top
-        assert y < screen_info.box.bottom
+        assert is_in_rect((x, y), screen_info.box)
     return PositionInScreen(x, y)
 
 #=============================================================================
@@ -270,25 +259,19 @@ def get_active_window_info():
         diff_y = window_rect.height - client_rect.height - client_rect.top
         assert diff_y >= padding_width, (diff_y, padding_width, window_rect, client_rect) # padding_top may be zero
 
+    padding_info = {
+        "top":    diff_y - padding_width,
+        "right":  padding_width,
+        "bottom": padding_width,
+        "left":   padding_width,
+    }
+    padding_info = namedtuple("PaddingInfo", padding_info.keys())(**padding_info)
+
     info = {
         "title":  title,
-        "top":    window_rect.top,
-        "right":  window_rect.right,
-        "bottom": window_rect.bottom,
-        "left":   window_rect.left,
-        "width":  window_rect.width,
-        "height": window_rect.height,
-        "padding_top":    diff_y - padding_width,
-        "padding_right":  padding_width,
-        "padding_bottom": padding_width,
-        "padding_left":   padding_width,
-        "client_top":    client_rect.top,
-        "client_right":  client_rect.right,
-        "client_bottom": client_rect.bottom,
-        "client_left":   client_rect.left,
-        "client_width":  client_rect.width,
-        "client_height": client_rect.height,
-    }
+        "padding": padding_info,
+        "client": client_rect,
+    } | window_rect._asdict()
     info = namedtuple("WindowInfo", info.keys())(**info)
     #print(f"{info=}")
     return info

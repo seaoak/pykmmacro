@@ -63,7 +63,7 @@ def main():
             width = 32
             offset2 = screenshot.search_pixel(expected_color, offset, width)
             print(f"search_pixel({expected_color!s}, {offset!r}, {width}): {offset2!r}")
-            base = OffsetInWindow(window_info.client_left, window_info.client_top)
+            base = OffsetInWindow(window_info.client.left, window_info.client.top)
             for i, offset2 in enumerate(screenshot.scan_pixel(expected_color, base, window_info.client_width, window_info.client_height)):
                 print(f"scan_pixel({expected_color!s})[{i}]: {offset2!r}")
         return
