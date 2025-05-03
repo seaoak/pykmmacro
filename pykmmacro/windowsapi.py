@@ -129,13 +129,10 @@ def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos:
     if window_info is None:
         window_info = get_active_window_info()
 
-    assert is_in_rect((pos.x, pos.y), window_info.client)
+    assert is_in_rect((pos.x, pos.y), window_info)
     offset_x = pos.x - window_info.left - window_info.padding.left
     offset_y = pos.y - window_info.top - window_info.padding.top
-    assert offset_x >= 0
-    assert offset_y >= 0
-    assert offset_x < window_info.client.width
-    assert offset_y < window_info.client.height
+    assert is_in_rect((offset_x, offset_y), window_info.client)
     return OffsetInWindow(offset_x, offset_y)
 
 def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen, /, *, screen_info=None) -> PositionInScreen:
@@ -158,10 +155,7 @@ def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offs
     """
     if window_info is None:
         window_info = get_active_window_info()
-    assert offset.x >= 0
-    assert offset.y >= 0
-    assert offset.x < window_info.client.width
-    assert offset.y < window_info.client.height
+    assert is_in_rect((offset.x, offset.y), window_info.client)
     x = window_info.left + window_info.padding.left + offset.x
     y = window_info.top + window_info.padding.top + offset.y
     if True:
