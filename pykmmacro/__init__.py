@@ -1,3 +1,4 @@
+from .clipboard import copy_to_clipboard
 from .keyboardinput import key_press, MODIFIER, NormalKey
 from .keyboardstat import ModifierKey, setup_keyboard_listener
 from .mouseinput import MOUSE_BUTTON, mouse_click, mouse_move_relative, mouse_move_to
