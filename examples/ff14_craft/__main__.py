@@ -73,6 +73,42 @@ class Status:
         return not self.is_visible_ime_icon
 
 #=============================================================================
+# Issue command
+
+def g_issue_command(text: str):
+    print(f"issue_command: {text!r}")
+    assert text
+    assert text.startswith('/')
+    status = Status()
+    assert not status.is_busy()
+    assert not status.is_in_input_mode()
+    copy_to_clipboard(text)
+    key_press(NormalKey.Slash)
+    while not Status().is_in_input_mode():
+        yield my_sleep_a_moment()
+    yield my_sleep_with_random(0.5)
+    key_press(NormalKey.Backspace)
+    yield my_sleep_a_moment()
+    key_press(NormalKey.Backspace) # twice (just in case)
+    yield my_sleep_a_moment()
+    key_press(NormalKey.V, MODIFIER.CTRL)
+    yield my_sleep_with_random(0.5)
+    key_press(NormalKey.Enter)
+    while (status_after := Status()).is_busy() or status_after.is_in_input_mode():
+        yield my_sleep_a_moment()
+    yield my_sleep_a_moment()
+    copy_to_clipboard(f"{my_random()}") # overwrite clipboard by random text
+
+#=============================================================================
+# Executor
+
+def run(generator):
+    print(f"run: {generator.__name__}")
+    for ret in generator:
+        pass
+    return ret
+
+#=============================================================================
 # Main
 
 def main():
@@ -97,6 +133,7 @@ def main():
     print("check pixel")
     status = Status()
     print(f"{status=!r}")
+    run(g_issue_command("/bow"))
     print("finish")
 
 main()
