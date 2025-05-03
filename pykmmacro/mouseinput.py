@@ -26,28 +26,28 @@ MOUSE_BUTTON = namedtuple("MouseButton", _MOUSE_BUTTON_DICT.keys())(**dict(((nam
 #=============================================================================
 # Private function
 
-pending_buttons = dict()
+_pending_buttons: set[_MouseButton] = set()
 
 def _cleanup():
-    if pending_buttons:
-        buttons = [button for button in pending_buttons.keys()] # shallow copy
+    if _pending_buttons:
+        buttons = [button for button in _pending_buttons] # shallow copy because `_pending_buttons` is modified in iteration
         for button in buttons:
             _mouse_up(button)
-        assert not pending_buttons
+        assert not _pending_buttons
 
 def _mouse_down(button: _MouseButton):
     print(f"MouseDown: {button.name}")
-    assert not button in pending_buttons
-    pending_buttons[button] = True
+    assert button not in _pending_buttons
+    _pending_buttons.add(button)
     assert isinstance(button.code, str)
     pydirectinput.mouseDown(button=button.code)
 
 def _mouse_up(button: _MouseButton):
     print(f"MouseUp: {button.name}")
-    assert button in pending_buttons
+    assert button in _pending_buttons
     assert isinstance(button.code, str)
     pydirectinput.mouseUp(button=button.code)
-    del pending_buttons[button]
+    _pending_buttons.remove(button)
 
 #=============================================================================
 # Public function
