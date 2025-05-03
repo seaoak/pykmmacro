@@ -88,12 +88,12 @@ def main():
         print(f"{pos=!r}")
 
         # click "Dig" icon at the slot 8 of hotbar 1
-        pos = PositionInScreen(-1267, 2535)
-        offset = pos.to_offset_in_client_region_of_active_window()
+        offset = OffsetInWindow(2581, 2167).move(2565 - 2581, 2105 - 2167)
         print(f"mouse_move_to: {offset=!r}")
         mouse_move_to(offset)
         my_sleep_a_moment()
         diff = (-8, -31)
+        diff = (-1, -1)
         print(f"mouse_move_relative: {diff=!r}")
         mouse_move_relative(*diff)
         my_sleep_a_moment()
