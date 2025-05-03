@@ -63,6 +63,15 @@ class Status:
         fields = ", ".join((f"{label}={getattr(self, label)}" for label in self.__dict__.keys() if label.startswith("is_")))
         return f"{__class__.__name__}({fields})"
 
+    def is_busy(self) -> bool:
+        return not self.is_bright_dig_icon_slot8_hotbar1
+
+    def is_in_craft_mode(self) -> bool:
+        return not self.is_bright_recepi_icon_slot3_hotbar1
+
+    def is_in_input_mode(self) -> bool:
+        return not self.is_visible_ime_icon
+
 #=============================================================================
 # Main
 
