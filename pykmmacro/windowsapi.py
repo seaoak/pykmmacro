@@ -19,11 +19,32 @@ class OffsetInScreen:
     pass
 
 #=============================================================================
+# Definition
+
+_TIMEOUT_MS_FOR_WINDOW_SWITCH = 500
+
+class TimeoutForWindowSwitch(Exception):
+    pass
+
+#=============================================================================
 # Private function
+
+def _restore_window(hwnd):
+    """
+    Restore a window from maxmized/minimized.
+    """
+    # https://github.com/asweigart/PyGetWindow/blob/master/src/pygetwindow/_pygetwindow_win.py#L230-L232
+    cmdShow = 0x9
+    ret = win32gui.ShowWindow(hwnd, cmdShow)
+    assert ret
+
+def _get_hwnd_of_active_window() -> int:
+    return win32gui.GetForegroundWindow() # may be zero
 
 def _get_client_rect(hwnd):
     """get client area of active window"""
     # https://mhammond.github.io/pywin32/win32gui__GetClientRect_meth.html
+    assert hwnd != 0
     rect = win32gui.GetClientRect(hwnd)
     rect = dict(zip(("left", "top", "right", "bottom"), rect))
     rect["width"] = rect["right"] - rect["left"]
@@ -34,6 +55,7 @@ def _get_client_rect(hwnd):
 def _get_window_rect(hwnd):
     """get the whole area of active window (include MENU and BORDER)"""
     # https://mhammond.github.io/pywin32/win32gui__GetWindowRect_meth.html
+    assert hwnd != 0
     rect = win32gui.GetWindowRect(hwnd)
     rect = dict(zip(("left", "top", "right", "bottom"), rect))
     rect["width"] = rect["right"] - rect["left"]
@@ -44,6 +66,7 @@ def _get_window_rect(hwnd):
 def _get_window_title(hwnd):
     """get the title of active window"""
     # https://mhammond.github.io/pywin32/win32gui__GetWindowText_meth.html
+    assert hwnd != 0
     title = win32gui.GetWindowText(hwnd)
     return title
 
@@ -221,21 +244,27 @@ class OffsetInWindow:
 def get_active_window_info():
     # https://github.com/asweigart/PyGetWindow/blob/master/src/pygetwindow/_pygetwindow_win.py
     timestamp_at_start = my_get_timestamp_ms()
-    while (hwnd := win32gui.GetForegroundWindow()) == 0:
+    while (hwnd := _get_hwnd_of_active_window()) == 0:
         # may be switching window now
-        assert my_get_timestamp_ms() - timestamp_at_start < 1000
+        if my_get_timestamp_ms() - timestamp_at_start > _TIMEOUT_MS_FOR_WINDOW_SWITCH:
+            raise TimeoutForWindowSwitch()
         my_sleep_a_moment()
     assert hwnd != 0
+
     client_rect = _get_client_rect(hwnd)
     window_rect = _get_window_rect(hwnd)
     title = _get_window_title(hwnd)
 
-    diff_x = window_rect.width - client_rect.width - client_rect.left
-    assert diff_x >= 0, (window_rect.width, client_rect.width, client_rect.left)
-    assert diff_x % 2 == 0
-    padding_width = diff_x // 2 # may be zero
-    diff_y = window_rect.height - client_rect.height - client_rect.top
-    assert diff_y >= padding_width # padding_top may be zero
+    if client_rect.width == 0 or client_rect.height == 0:
+        padding_width = 0
+        diff_y = 0
+    else:
+        diff_x = window_rect.width - client_rect.width - client_rect.left
+        assert diff_x >= 0, (window_rect.width, client_rect.width, client_rect.left)
+        assert diff_x % 2 == 0
+        padding_width = diff_x // 2 # may be zero
+        diff_y = window_rect.height - client_rect.height - client_rect.top
+        assert diff_y >= padding_width, (diff_y, padding_width, window_rect, client_rect) # padding_top may be zero
 
     info = {
         "title":  title,
@@ -299,3 +328,32 @@ def get_screen_info():
 
 def show_dialog(text: str) -> None:
     win32gui.MessageBox(None, text, "PyKMmacro Dialog", 1)
+
+def activate_window(title: str) -> bool:
+    """
+    Search the window whose title matches specified text, and make the window active (foreground).
+    """
+    assert title
+    data = {
+        'title': title,
+        'hwnd': 0,
+    }
+    def callback(hwnd, data):
+        assert hwnd != 0
+        title = _get_window_title(hwnd)
+        if title and title == data['title']:
+            data['hwnd'] = hwnd
+            return False # stop enumeration
+    win32gui.EnumWindows(callback, data)
+    hwnd = data['hwnd']
+    if hwnd == 0:
+        return False
+    _restore_window(hwnd)
+    win32gui.SetForegroundWindow(hwnd)
+    timestamp_at_start = my_get_timestamp_ms()
+    while _get_hwnd_of_active_window() != hwnd:
+        if my_get_timestamp_ms() - timestamp_at_start > _TIMEOUT_MS_FOR_WINDOW_SWITCH:
+            raise TimeoutForWindowSwitch()
+        my_sleep_a_moment()
+    my_sleep_a_moment()
+    return True
