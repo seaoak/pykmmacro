@@ -76,9 +76,12 @@ def main():
     while (window_info := get_active_window_info()).title != _EXPECTED_WINDOW_TITLE:
         my_sleep(0.5)
     print("detect FF14 window")
+    my_sleep(1)
+    screen_info = get_screen_info()
+    assert is_rect_intersect(window_info, screen_info.box)
+    assert not is_in_rect((100, 100), window_info)
     print("Move mouse cursor to topleft corner")
     mouse_move_to(OffsetInWindow(window_info.client_left, window_info.client_top))
-    my_sleep(1)
     print("check pixel")
     status = Status()
     print(f"{status=!r}")
