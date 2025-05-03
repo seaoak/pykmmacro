@@ -30,13 +30,13 @@ def my_unique(seq, *, key_func=lambda x: x):
     Remove duplicated items in a sequence.
     If `key_func` is specified, the value of `key_func(item)` is used to distinguish an item from another item.
     """
-    is_dedup = dict()
+    is_dedup = set()
     def generate_result():
         for value in seq:
             key = key_func(value)
             if key in is_dedup:
                 continue
-            is_dedup[key] = True
+            is_dedup.add(key)
             yield value
     return generate_result()
 
