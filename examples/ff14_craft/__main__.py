@@ -7,59 +7,14 @@ _EXPECTED_WINDOW_TITLE = "FINAL FANTASY XIV"
 
 _TIMEOUT_MS_FOR_GENERAL = 2000
 
-_DELAY_MS_FOR_A_MOMENT = 100
-_DELAY_MS_FOR_A_TICK = 50
-
 #=============================================================================
 # Exception
-
-class MyError(Exception):
-    pass
-
-class MyTimeoutError(MyError):
-    pass
 
 class MyNotActiveWindowError(MyError):
     pass
 
 class MyPixelNotFoundError(MyError):
     pass
-
-#=============================================================================
-# Utilities
-
-def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
-    assert period_ms > 0
-    assert 0 <= variation_ratio and variation_ratio < 1.0
-    variation = period_ms * variation_ratio # may be zero
-    period = (period_ms - variation / 2) + variation * my_random()
-    limit = my_get_timestamp_ms() + period
-    while my_get_timestamp_ms() < limit:
-        my_sleep_ms(_DELAY_MS_FOR_A_TICK)
-        yield
-
-def g_sleep_a_moment(period_ms: int =_DELAY_MS_FOR_A_MOMENT, /):
-    assert period_ms > 0
-    yield from g_sleep_with_random(period_ms, variation_ratio=0.2)
-
-def g_with_timeout(timeout_ms: int, func, *args, **kwargs):
-    # NOTE: `func` should not be a generator.
-    assert timeout_ms > 0
-    limit = my_get_timestamp_ms() + timeout_ms
-    while True:
-        # call `func()` before timeout judgement
-        ret = func(*args, **kwargs)
-        if ret is not None:
-            return ret
-        if my_get_timestamp_ms() > limit:
-            raise MyTimeoutError(f"{timeout_ms=} / {func.__name__}()")
-        yield from g_sleep_a_moment()
-
-def g_with_timeout_until(timeout_ms: int, func, *args, **kwargs):
-    yield from g_with_timeout(timeout_ms, lambda: func(*args, **kwargs) or None)
-
-def g_with_timeout_while(timeout_ms: int, func, *args, **kwargs):
-    yield from g_with_timeout_until(timeout_ms, lambda: not func(*args, **kwargs))
 
 #=============================================================================
 # Abort if the title of active window is not matched to expected
