@@ -5,7 +5,7 @@ import time
 #=============================================================================
 # Constants
 
-_DELAY_A_MOMENT = 0.1
+_DELAY_MS_FOR_A_MOMENT = 100
 
 #=============================================================================
 # Exception
@@ -51,16 +51,20 @@ def my_random():
         acc += random.random()
     return acc / num
 
-def my_sleep(period_sec):
-    time.sleep(period_sec)
+def my_sleep_ms(period_ms: int):
+    assert period_ms > 0
+    time.sleep(period_ms / 1000)
 
-def my_sleep_with_random(period_sec, /, *, variation_ratio=0.4):
-    variation = period_sec * variation_ratio # may be zero
-    period = (period_sec - variation / 2) + variation * my_random()
-    my_sleep(period)
+def my_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
+    assert period_ms > 0
+    assert 0 <= variation_ratio and variation_ratio < 1.0
+    variation = int(period_ms * variation_ratio) # may be zero
+    assert variation % 2 == 0
+    period = (period_ms - variation // 2) + int(variation * my_random())
+    my_sleep_ms(period)
 
-def my_sleep_a_moment(period_sec=_DELAY_A_MOMENT, /):
-    my_sleep_with_random(period_sec, variation_ratio=0.2)
+def my_sleep_a_moment():
+    my_sleep_with_random(_DELAY_MS_FOR_A_MOMENT, variation_ratio=0.2)
 
 def my_get_timestamp_ms() -> int:
     return time.time_ns() // (1000 * 1000)

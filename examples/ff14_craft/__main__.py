@@ -35,7 +35,7 @@ def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
     period = (period_ms - variation / 2) + variation * my_random()
     limit = my_get_timestamp_ms() + period
     while my_get_timestamp_ms() < limit:
-        my_sleep(_DELAY_MS_FOR_A_TICK / 1000)
+        my_sleep_ms(_DELAY_MS_FOR_A_TICK)
         yield
 
 def g_sleep_a_moment(period_ms: int =_DELAY_MS_FOR_A_MOMENT, /):
@@ -167,9 +167,9 @@ def main():
         return
     print("waiting for activating FF14 window")
     while (window_info := get_active_window_info()).title != _EXPECTED_WINDOW_TITLE:
-        my_sleep(0.5)
+        my_sleep_ms(500)
     print("detect FF14 window")
-    my_sleep(1)
+    my_sleep_ms(1000)
     screen_info = get_screen_info()
     print(f"{screen_info=!r}")
     print(f"{window_info!r}")
