@@ -6,6 +6,7 @@ import time
 # Constant
 
 _DELAY_MS_FOR_A_MOMENT = 100
+_DELAY_MS_FOR_ENSURE = 200
 _DELAY_MS_FOR_A_TICK = 50
 
 #=============================================================================
@@ -91,6 +92,9 @@ def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
 
 def g_sleep_a_moment():
     yield from g_sleep_with_random(_DELAY_MS_FOR_A_MOMENT, variation_ratio=0.2)
+
+def g_sleep_to_ensure():
+    yield from g_sleep_with_random(_DELAY_MS_FOR_ENSURE, variation_ratio=0.2)
 
 def g_with_timeout(timeout_ms: int, func, *args, **kwargs):
     # NOTE: `func` should not be a generator.
