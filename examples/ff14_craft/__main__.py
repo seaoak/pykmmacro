@@ -1,3 +1,7 @@
+import os
+from pathlib import Path, WindowsPath
+import sys
+
 from pykmmacro import *
 
 #=============================================================================
@@ -5,7 +9,7 @@ from pykmmacro import *
 
 _EXPECTED_WINDOW_TITLE = "FINAL FANTASY XIV"
 
-_TIMEOUT_MS_FOR_GENERAL = 2000
+_TIMEOUT_MS_FOR_GENERAL = 10 * 1000
 
 #=============================================================================
 # Exception
@@ -14,6 +18,9 @@ class MyNotActiveWindowError(MyError):
     pass
 
 class MyPixelNotFoundError(MyError):
+    pass
+
+class MyRecipeEarlyFinishError(MyError):
     pass
 
 #=============================================================================
@@ -78,7 +85,7 @@ class Status:
         return not self.is_visible_ime_icon
 
 #=============================================================================
-# Issue command
+# Proces a recipe
 
 def g_issue_command(text: str):
     print(f"issue_command: {text!r}")
@@ -86,6 +93,7 @@ def g_issue_command(text: str):
     assert text.startswith('/')
     status = Status()
     assert not status.is_busy()
+    assert status.is_in_craft_mode()
     assert not status.is_in_input_mode()
     copy_to_clipboard(text)
     key_press(NormalKey.Slash)
@@ -98,44 +106,179 @@ def g_issue_command(text: str):
     key_press(NormalKey.V, MODIFIER.CTRL)
     yield from g_sleep_to_ensure()
     key_press(NormalKey.Enter)
-    yield from g_with_timeout_while(_TIMEOUT_MS_FOR_GENERAL, lambda: (status := Status()).is_busy() or status.is_in_input_mode())
+    yield from g_with_timeout_while(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_in_input_mode())
     copy_to_clipboard(f"{my_random()}") # overwrite clipboard by random text
+
+def g_process_a_recipe(recipe: list[str]):
+    print(f"process a recipe ({len(recipe)} steps)")
+    yield from g_sleep_with_random(1000, variation_ratio=0.0)
+    key_press(NormalKey.NUM_0)
+    yield from g_sleep_a_moment()
+    key_press(NormalKey.NUM_0)
+    yield from g_sleep_a_moment()
+    yield from g_with_timeout_until(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_in_craft_mode())
+    yield from g_sleep_to_ensure()
+    assert not Status().is_busy()
+    assert not Status().is_in_input_mode()
+    for skill_name in recipe:
+        assert skill_name
+        assert not skill_name.startswith('/')
+        assert -1 == skill_name.find('+') # not supporeted yet
+        if not Status().is_in_craft_mode():
+            # early finish
+            match skill_name:
+                case '作業' | '下地作業' | '模範作業':
+                    print(f"Recipe is finished early")
+                    break
+                case _:
+                    raise MyRecipeEarlyFinishError(skill_name)
+        command = f"/ac {skill_name}"
+        yield from g_issue_command(command)
+        yield from g_with_timeout_while(_TIMEOUT_MS_FOR_GENERAL, lambda: (status := Status()).is_busy() and status.is_in_craft_mode())
+        yield from g_sleep_to_ensure()
+    g_with_timeout_while(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_in_craft_mode())
+    yield from g_sleep(2*1000)
+    assert Status().is_busy() # because keep sitting
+    print("finish a recipe")
+
+def parse_recipe_file(generator_for_lines) -> list[str]:
+    def generator():
+        is_skipping_header_part = True
+        for line in generator_for_lines:
+            line = line.strip(' \t\r\n')
+            if is_skipping_header_part:
+                if line == ";---DATA---":
+                    is_skipping_header_part = False
+                continue
+            if not line:
+                continue # skip an empty line
+            if line.startswith(';'):
+                continue # skip a comment line
+            line = line.lstrip('/')
+            assert -1 == line.find(' ')
+            assert -1 == line.find('\t')
+            assert -1 == line.find('　')
+            yield line
+    return [text for text in generator()] # make a real list to validate all lines in input
+
+def g_process_a_recipe_file(path: Path, num_of_loop: int):
+    print(f"start processing a recipe file \"{path}\" at {my_get_str_timestamp()}")
+    assert num_of_loop > 0
+    assert path.suffix == '.MAC'
+    def generator_for_lines():
+        with open(path, encoding='shiftjis') as f:
+            yield from f
+    recipe: list[str] = parse_recipe_file(generator_for_lines())
+
+    key_press(NormalKey.Three, MODIFIER.CTRL) # open craft menu
+    yield from g_sleep(1*1000)
+    yield from g_sleep_a_moment()
+    key_press(NormalKey.NUM_0) # just in case (redundant NUM_0 key has no effect)
+    yield from g_sleep_to_ensure()
+
+    status = Status()
+    assert not status.is_busy()
+    assert not status.is_in_craft_mode()
+    assert not status.is_in_input_mode()
+
+    for _ in range(num_of_loop):
+        yield from g_process_a_recipe(recipe)
+
+    print(f"finish processing a recipe file \"{path}\" at {my_get_str_timestamp()}")
 
 #=============================================================================
 # Executor
 
-def run(generator):
-    print(f"run: {generator.__name__}")
-    for ret in generator:
-        pass
-    return ret
+def run(generator, callback_for_each_yield):
+    for _ in generator:
+        callback_for_each_yield()
 
 #=============================================================================
 # Main
 
-def main():
-    print("start ff14_craft")
+def crate_callback_func():
+    key_for_abort = ModifierKey.LSHIFT
+    is_key_pressed_since_previous_call = setup_keyboard_listener()
+    is_key_pressed_since_previous_call(key_for_abort) # call once in advance to clear status
+
+    hwnd = 0
+
+    def callback_func():
+        nonlocal hwnd
+        if is_key_pressed_since_previous_call(key_for_abort):
+            print("Aborted by SHIFT key")
+            sys.exit(3)
+        window_info = get_active_window_info()
+        if hwnd == 0 and window_info.title == _EXPECTED_WINDOW_TITLE:
+            hwnd = window_info.hwnd
+        elif hwnd != 0 and window_info.hwnd != hwnd:
+            print("Aborted because the active window was changed")
+            sys.exit(4)
+
+    return callback_func
+
+def usage(_args):
+    print(f"Usage: python -m {__package__} macro-file num-of-loop")
+    sys.exit(1)
+
+def g_main():
+    print(f"start ff14_craft at {my_get_str_timestamp()}")
+
+    args = sys.argv
+    print(f"{args=!r}")
+    if len(args) != 3:
+        usage(args)
+    _, path, num_of_loop = args
+    if not path or not isinstance(path, str) or not num_of_loop or not isinstance(num_of_loop, str):
+        usage(args)
+    try:
+        x = int(num_of_loop)
+        assert f"{x}" == num_of_loop
+        num_of_loop = x
+        assert num_of_loop > 0
+    except Exception:
+        print(f"ERROR: second argument should be an positive integer: \"{num_of_loop}\"")
+        usage(args)
+    path = WindowsPath(path)
+    if not path.exists():
+        print(f"ERROR: file not fould: \"{path}\"")
+        sys.exit(1)
+    stat = os.stat(path)
+    if stat.st_mode & 0o400 == 0:
+        print(f"ERROR: permission error: \"{path}\"")
+        sys.exit(1)
+
     print("activate FF14 window")
     if not activate_window(_EXPECTED_WINDOW_TITLE):
         print(f"ERROR: can not find FF14 window (title={_EXPECTED_WINDOW_TITLE!r})")
         return
     print("waiting for activating FF14 window")
     while (window_info := get_active_window_info()).title != _EXPECTED_WINDOW_TITLE:
-        my_sleep_ms(500)
+        yield from g_sleep(500)
     print("detect FF14 window")
-    my_sleep_ms(1000)
+    yield from g_sleep(1000)
     screen_info = get_screen_info()
     print(f"{screen_info=!r}")
     print(f"{window_info!r}")
     assert is_rect_intersect(window_info, screen_info.box)
     assert is_rect_intersect(window_info.client, window_info)
     assert not is_in_rect((100, 100), window_info)
+
     print("Move mouse cursor to topleft corner")
     mouse_move_to(OffsetInWindow(window_info.client.left, window_info.client.top))
-    print("check pixel")
+
     status = Status()
     print(f"{status=!r}")
-    run(g_issue_command("/bow"))
+    assert not status.is_busy()
+    assert not status.is_in_craft_mode()
+    assert not status.is_in_input_mode()
+
+    yield from g_process_a_recipe_file(path, num_of_loop)
+
     print("finish")
+
+def main():
+    callback_for_each_yield = crate_callback_func()
+    run(g_main(), callback_for_each_yield)
 
 main()
