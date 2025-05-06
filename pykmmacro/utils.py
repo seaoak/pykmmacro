@@ -62,6 +62,9 @@ def my_random():
 #=============================================================================
 # Time
 
+def my_get_str_timestamp() -> str:
+    return time.strftime("%Y/%m/%d %H:%M:%S")
+
 def my_get_timestamp_ms() -> int:
     return time.time_ns() // (1000 * 1000)
 
@@ -89,6 +92,9 @@ def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
     while my_get_timestamp_ms() < limit:
         my_sleep_ms(_DELAY_MS_FOR_A_TICK)
         yield
+
+def g_sleep(period_ms):
+    yield from g_sleep_with_random(period_ms, variation_ratio=0.0)
 
 def g_sleep_a_moment():
     yield from g_sleep_with_random(_DELAY_MS_FOR_A_MOMENT, variation_ratio=0.2)
