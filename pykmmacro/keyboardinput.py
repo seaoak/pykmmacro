@@ -1,3 +1,4 @@
+import atexit
 from collections import namedtuple
 from dataclasses import dataclass
 
@@ -155,8 +156,15 @@ _ModifierKey.__init__ = my_fail_always # disable constructor
 
 _pending_keys: set[AllKey] = set()
 
+_is_handler_at_exit_already_registered = False
+
 #=============================================================================
 # Private functions
+
+def _handler_at_exit():
+    if _pending_keys:
+        print(f"handler_at_exit: release {len(_pending_keys)} keys")
+    _cleanup()
 
 def _cleanup() -> None:
     keys = [key for key in _pending_keys] # shallow copy because `_pending_keys` is modified in iteration
@@ -165,7 +173,11 @@ def _cleanup() -> None:
     assert not _pending_keys
 
 def _key_down(key: AllKey) -> None:
+    global _is_handler_at_exit_already_registered
     print(f"keyDown: {key.name}")
+    if not _is_handler_at_exit_already_registered:
+        _is_handler_at_exit_already_registered = True
+        atexit.register(_handler_at_exit)
     assert key.keycode in pydirectinput.KEYBOARD_MAPPING
     assert key not in _pending_keys
     _pending_keys.add(key)
