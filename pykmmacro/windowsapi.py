@@ -266,6 +266,7 @@ def get_active_window_info():
     padding_info = namedtuple("PaddingInfo", padding_info.keys())(**padding_info)
 
     info = {
+        "hwnd": hwnd,
         "title":  title,
         "padding": padding_info,
         "client": client_rect,
