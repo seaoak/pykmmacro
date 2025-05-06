@@ -174,7 +174,7 @@ def _cleanup() -> None:
 
 def _key_down(key: AllKey) -> None:
     global _is_handler_at_exit_already_registered
-    print(f"keyDown: {key.name}")
+    # print(f"keyDown: {key.name}")
     if not _is_handler_at_exit_already_registered:
         _is_handler_at_exit_already_registered = True
         atexit.register(_handler_at_exit)
@@ -184,7 +184,7 @@ def _key_down(key: AllKey) -> None:
     pydirectinput.keyDown(key.keycode)
 
 def _key_up(key: AllKey) -> None:
-    print(f"keyUp: {key.name}")
+    # print(f"keyUp: {key.name}")
     assert key.keycode in pydirectinput.KEYBOARD_MAPPING
     assert key in _pending_keys
     pydirectinput.keyUp(key.keycode)
@@ -225,5 +225,11 @@ def key_press(key: NormalKey | None, modifier=MODIFIER.NONE, /) -> None:
         _key_down(key)
         my_sleep_a_moment()
         _key_up(key)
- 
+
+    prefix = ''
+    if modifier != 0:
+        selected_keys = (name for name, bitmap in _MODIFIER_DICT.items() if modifier & bitmap and not name.startswith(('L', 'R')))
+        prefix = ' + '.join(selected_keys) + ' + '
+    print(f"key_press: {prefix}{key.name}")
+
     with_modifier_keys(f, modifier)

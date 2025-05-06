@@ -54,13 +54,14 @@ def setup_keyboard_listener():
         return is_updated
 
     def on_press(keycode):
-        print(f"on_press: {keycode!r}")
+        # print(f"on_press: {keycode!r}")
         if keycode in _KEYCODE_TO_KEYNAME:
             keyname = _KEYCODE_TO_KEYNAME[keycode]
             counter_for_listerner_thread[keyname] = (counter_for_listerner_thread[keyname] + 1) & _BITMASK_FOR_TRUNCATE
 
     def on_release(keycode):
-        print(f"on_release: {keycode!r}")
+        # print(f"on_release: {keycode!r}")
+        return
 
     listener = keyboard.Listener(
         on_press=on_press,
