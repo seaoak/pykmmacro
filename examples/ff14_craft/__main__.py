@@ -273,6 +273,7 @@ def g_main():
     yield from g_process_a_recipe_file(path, num_of_loop)
 
     print("finish")
+    show_dialog(f"PyKMmacro: finish at {my_get_str_timestamp()}")
 
 def main():
     callback_for_each_yield = crate_callback_func()
