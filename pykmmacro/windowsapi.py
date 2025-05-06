@@ -313,7 +313,13 @@ def get_screen_info():
     return result
 
 def show_dialog(text: str) -> None:
-    win32gui.MessageBox(None, text, "PyKMmacro Dialog", 1)
+    # https://mhammond.github.io/pywin32/win32gui__MessageBox_meth.html
+    # https://github.com/asweigart/PyMsgBox/blob/master/src/pymsgbox/_native_win.py#L69
+    flags = 0
+    flags |= 0x0     # MB_OK
+    flags |= 0x10000 # MB_SETFOREGROUND
+    flags |= 0x40000 # MB_TOPMOST
+    win32gui.MessageBox(None, text, "PyKMmacro Dialog", flags)
 
 def activate_window(title: str) -> bool:
     """
