@@ -177,7 +177,8 @@ def g_process_a_recipe_file(path: Path, num_of_loop: int):
     assert not status.is_in_craft_mode()
     assert not status.is_in_input_mode()
 
-    for _ in range(num_of_loop):
+    for i in range(num_of_loop):
+        print(f"loop: {i+1} / {num_of_loop}")
         yield from g_process_a_recipe(recipe)
 
     print(f"finish processing a recipe file \"{path}\" at {my_get_str_timestamp()}")

@@ -230,6 +230,6 @@ def key_press(key: NormalKey | None, modifier=MODIFIER.NONE, /) -> None:
     if modifier != 0:
         selected_keys = (name for name, bitmap in _MODIFIER_DICT.items() if modifier & bitmap and not name.startswith(('L', 'R')))
         prefix = ' + '.join(selected_keys) + ' + '
-    print(f"key_press: {prefix}{key.name}")
+    # print(f"key_press: {prefix}{key.name}")
 
     with_modifier_keys(f, modifier)
