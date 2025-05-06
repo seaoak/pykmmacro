@@ -175,6 +175,9 @@ cython_debug/
 
 #============================================================================
 
+# local repository
+/pydirectinput
+
 # venv files in Windows (`pyvenv.cfg` contains personal information such as USER_PROFILE folder name)
 /include
 /Lib
