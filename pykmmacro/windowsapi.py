@@ -229,6 +229,10 @@ class OffsetInWindow:
 # Public function
 
 def get_active_window_info():
+    """
+    Return infomation about active (foreground) window.
+    This function is synchronous (blocking) API.
+    """
     # https://github.com/asweigart/PyGetWindow/blob/master/src/pygetwindow/_pygetwindow_win.py
     timestamp_at_start = my_get_timestamp_ms()
     while (hwnd := _get_hwnd_of_active_window()) == 0:
@@ -313,6 +317,7 @@ def show_dialog(text: str) -> None:
 def activate_window(title: str) -> bool:
     """
     Search the window whose title matches specified text, and make the window active (foreground).
+    This function is synchronous (blocking) API.
     """
     assert title
     data = {
