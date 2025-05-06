@@ -108,12 +108,13 @@ def g_with_timeout(timeout_ms: int, func, *args, **kwargs):
     limit = my_get_timestamp_ms() + timeout_ms
     while True:
         # call `func()` before timeout judgement
+        timestamp = my_get_timestamp_ms() # capture this timing (before calling `func`)
         ret = func(*args, **kwargs)
         if ret is not None:
             return ret
-        if my_get_timestamp_ms() > limit:
+        if timestamp > limit:
             raise MyTimeoutError(f"{timeout_ms=} / {func.__name__}()")
-        yield from g_sleep_a_moment()
+        yield from g_sleep(_DELAY_MS_FOR_A_TICK)
 
 def g_with_timeout_until(timeout_ms: int, func, *args, **kwargs):
     yield from g_with_timeout(timeout_ms, lambda: func(*args, **kwargs) or None)
