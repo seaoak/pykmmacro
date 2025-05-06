@@ -91,6 +91,7 @@ def g_issue_command(text: str):
     print(f"issue_command: {text!r}")
     assert text
     assert text.startswith('/')
+    text = text[1:] # remove slash at the first
     status = Status()
     assert not status.is_busy()
     assert status.is_in_craft_mode()
@@ -98,13 +99,9 @@ def g_issue_command(text: str):
     copy_to_clipboard(text)
     key_press(NormalKey.Slash)
     yield from g_with_timeout_until(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_in_input_mode())
-    yield from g_sleep_to_ensure()
-    key_press(NormalKey.Backspace)
-    yield from g_sleep_a_moment()
-    key_press(NormalKey.Backspace) # twice (just in case)
     yield from g_sleep_a_moment()
     key_press(NormalKey.V, MODIFIER.CTRL)
-    yield from g_sleep_to_ensure()
+    yield from g_sleep_a_moment()
     key_press(NormalKey.Enter)
     yield from g_with_timeout_while(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_in_input_mode())
     copy_to_clipboard(f"{my_random()}") # overwrite clipboard by random text
@@ -113,12 +110,11 @@ def g_process_a_recipe(recipe: list[str]):
     print(f"process a recipe ({len(recipe)} steps)")
     yield from g_sleep_with_random(1000, variation_ratio=0.0)
     key_press(NormalKey.NUM_0)
-    yield from g_sleep_a_moment()
-    key_press(NormalKey.NUM_0)
-    yield from g_sleep_a_moment()
-    yield from g_with_timeout_until(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_in_craft_mode())
     yield from g_sleep_to_ensure()
-    assert not Status().is_busy()
+    key_press(NormalKey.NUM_0)
+    yield from g_sleep_to_ensure()
+    yield from g_with_timeout_until(_TIMEOUT_MS_FOR_GENERAL, lambda: (status := Status()).is_in_craft_mode() and not status.is_busy())
+    yield from g_sleep_to_ensure()
     assert not Status().is_in_input_mode()
     for skill_name in recipe:
         assert skill_name
@@ -135,9 +131,9 @@ def g_process_a_recipe(recipe: list[str]):
         command = f"/ac {skill_name}"
         yield from g_issue_command(command)
         yield from g_with_timeout_while(_TIMEOUT_MS_FOR_GENERAL, lambda: (status := Status()).is_busy() and status.is_in_craft_mode())
-        yield from g_sleep_to_ensure()
+        yield from g_sleep_a_moment()
     g_with_timeout_while(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_in_craft_mode())
-    yield from g_sleep(2*1000)
+    yield from g_sleep_to_ensure()
     assert Status().is_busy() # because keep sitting
     print("finish a recipe")
 
