@@ -34,8 +34,6 @@ class ModifierKey:
 for keyname in _MODIFIER_KEY_DICT.keys():
     setattr(ModifierKey, keyname, ModifierKey(keyname))
 
-ModifierKey.__init__ = my_fail_always # disable constructor
-
 #=============================================================================
 # Public function
 

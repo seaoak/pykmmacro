@@ -148,9 +148,6 @@ for name, keycode in _MODIFIER_KEY_DICT.items():
     bitmap = _MODIFIER_DICT[name]
     setattr(_ModifierKey, name, _ModifierKey(name, keycode))
 
-NormalKey.__init__ = my_fail_always # disable constructor
-_ModifierKey.__init__ = my_fail_always # disable constructor
-
 #=============================================================================
 # Shared variables
 
