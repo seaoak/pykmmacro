@@ -64,7 +64,7 @@ _NORMAL_KEY_DICT = ({
     'Home': 'home',
     'PageUp': 'pageup',
     'PageDown': 'pagedown',
-    'Tab': 'tab',
+    'TAB': 'tab',
     'Delete': 'delete',
     'End': 'end',
     'Enter': 'enter',
