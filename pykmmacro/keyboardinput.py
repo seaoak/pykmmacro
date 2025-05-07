@@ -51,7 +51,7 @@ _MODIFIER_KEY_DICT: Final[dict[str, str]] = {
     'LWIN': 'winleft',
 }
 
-_NORMAL_KEY_DICT: Final[dict[str, str | int]] = ({
+_OTHER_KEY_DICT: Final[dict[str, str | int]] = {
     'CapsLock': 'capslock',
     'NumLock': 'numlock',
 
@@ -126,9 +126,11 @@ _NORMAL_KEY_DICT: Final[dict[str, str | int]] = ({
     'NUM_9': 'numpad9',
     'NUM_0': 'numpad0',
 }
-    | dict(((f"F{i}", f"f{i}") for i in range(1, 12))) # function keys
-    | dict(((chr(x), chr(x).lower()) for x in range(ord('A'), ord('Z')))) # alphabets
-)
+
+_FUNCTION_KEY_DICT: Final[dict[str, str | int]] = dict(((f"F{i}", f"f{i}") for i in range(1, 12)))
+_ALPHABET_KEY_DICT: Final[dict[str, str | int]] = dict(((chr(x), chr(x).lower()) for x in range(ord('A'), ord('Z'))))
+
+_NORMAL_KEY_DICT: Final[dict[str, str | int]] = _OTHER_KEY_DICT | _FUNCTION_KEY_DICT | _ALPHABET_KEY_DICT
 
 @dataclass(frozen=True)
 class AllKey:
