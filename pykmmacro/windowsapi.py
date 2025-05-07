@@ -100,6 +100,11 @@ def _get_all_display_info():
             "name":       info["Device"],
         }
         table = namedtuple("MonitorInfo", table_def.keys())(**table_def)
+        assert table.top < table.bottom
+        assert table.left < table.right
+        assert table.width > 0
+        assert table.height > 0
+        assert table.name
         infos.append(table)
 
     return infos
