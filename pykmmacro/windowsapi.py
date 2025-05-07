@@ -56,7 +56,7 @@ def _restore_window(hwnd: int):
 def _get_hwnd_of_active_window() -> int:
     return win32gui.GetForegroundWindow() # may be zero
 
-def _get_client_rect(hwnd):
+def _get_client_rect(hwnd: int) -> _MyRect:
     """get client area of active window"""
     # https://mhammond.github.io/pywin32/win32gui__GetClientRect_meth.html
     assert hwnd != 0
@@ -64,7 +64,7 @@ def _get_client_rect(hwnd):
     rect = dict(zip(("left", "top", "right", "bottom"), t))
     return _MyRect(**rect)
 
-def _get_window_rect(hwnd):
+def _get_window_rect(hwnd: int) -> _MyRect:
     """get the whole area of active window (include MENU and BORDER)"""
     # https://mhammond.github.io/pywin32/win32gui__GetWindowRect_meth.html
     assert hwnd != 0
@@ -72,7 +72,7 @@ def _get_window_rect(hwnd):
     rect = dict(zip(("left", "top", "right", "bottom"), t))
     return _MyRect(**rect)
 
-def _get_window_title(hwnd):
+def _get_window_title(hwnd: int) -> str:
     """get the title of active window"""
     # https://mhammond.github.io/pywin32/win32gui__GetWindowText_meth.html
     assert hwnd != 0
