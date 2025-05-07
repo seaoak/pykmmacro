@@ -104,6 +104,7 @@ def g_issue_command(text: str):
     key_press(NormalKey.V, MODIFIER.CTRL)
     yield from g_sleep_a_moment()
     key_press(NormalKey.Enter)
+    yield from g_with_timeout_until(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_busy())
     yield from g_with_timeout_while(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_in_input_mode())
     copy_to_clipboard(f"{my_random()}") # overwrite clipboard by random text
 
