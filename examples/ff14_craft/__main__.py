@@ -36,9 +36,9 @@ def check_window_title(window_info=None):
 #=============================================================================
 # check pixel
 
-_DIFFERENCE_FROM_KMMACRO: Final = (2565 - 2581, 2105 - 2167)
+_DIFFERENCE_FROM_KMMACRO: Final[tuple[int, int]] = (2565 - 2581, 2105 - 2167)
 
-_TABLE_OF_PIXEL_COLOR: Final = {
+_TABLE_OF_PIXEL_COLOR: Final[dict[str, list[tuple[OffsetInWindow, Color | None, bool]]]] = {
     'is_bright_dig_icon_slot8_hotbar1': [
         (OffsetInWindow(2581, 2167).move(*_DIFFERENCE_FROM_KMMACRO),    Color.from_int(0xFFFFE2), True),
         (OffsetInWindow(2581, 2167).move(*_DIFFERENCE_FROM_KMMACRO),    Color.from_int(0x7F7F71), False),
@@ -74,7 +74,7 @@ class Status:
 
     def __repr__(self):
         fields = ", ".join((f"{label}={getattr(self, label)}" for label in self.__dict__.keys() if label.startswith("is_")))
-        return f"{__class__.__name__}({fields})"
+        return f"{self.__class__.__name__}({fields})"
 
     def is_busy(self) -> bool:
         return not self.is_bright_dig_icon_slot8_hotbar1
@@ -226,18 +226,17 @@ def g_main():
     print(f"{args=!r}")
     if len(args) != 3:
         usage(args)
-    _, path, num_of_loop = args
-    if not path or not isinstance(path, str) or not num_of_loop or not isinstance(num_of_loop, str):
+    _, arg_path, arg_num_of_loop = args
+    if not arg_path or not isinstance(arg_path, str) or not arg_num_of_loop or not isinstance(arg_num_of_loop, str):
         usage(args)
     try:
-        x = int(num_of_loop)
-        assert f"{x}" == num_of_loop
-        num_of_loop = x
+        num_of_loop = int(arg_num_of_loop)
+        assert f"{num_of_loop}" == arg_num_of_loop
         assert num_of_loop > 0
     except Exception:
-        print(f"ERROR: second argument should be an positive integer: \"{num_of_loop}\"")
+        print(f"ERROR: second argument should be an positive integer: \"{arg_num_of_loop}\"")
         usage(args)
-    path = WindowsPath(path)
+    path = WindowsPath(arg_path)
     if not path.exists():
         print(f"ERROR: file not fould: \"{path}\"")
         sys.exit(1)
