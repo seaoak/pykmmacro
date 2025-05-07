@@ -38,6 +38,8 @@ class Screenshot:
     def get_pixel(self, offset: OffsetInWindow) -> Color:
         offset_in_screen = offset.to_position_in_screen(window_info=self.window_info, screen_info=self.screen_info).to_offset_in_screen(screen_info=self.screen_info)
         color = self.image.getpixel((offset_in_screen.x, offset_in_screen.y))
+        assert isinstance(color, tuple)
+        assert len(color) == 3
         return Color(*color)
 
     def search_pixel(self, expected_color:Color, center: OffsetInWindow, width: int, height: int = 0) -> None | OffsetInWindow:
