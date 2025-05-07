@@ -49,16 +49,18 @@ def my_unique(seq, *, key_func=lambda x: x):
             yield value
     return generate_result()
 
-def my_random():
+def my_random() -> float:
     """
     use the average as *approximate* Gaussian random value
     https://k11i.biz/blog/2016/11/05/approximate-gaussian-rng/
     """
     num = 100 # with no foundation
-    acc = 0
+    acc = 0.0
     for _ in range(num):
         acc += random.random()
-    return acc / num
+    result = acc / num
+    assert 0.0 <= result and result < 1.0
+    return result
 
 #=============================================================================
 # Time
@@ -88,7 +90,7 @@ def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
     assert period_ms > 0
     assert 0 <= variation_ratio and variation_ratio < 1.0
     variation = period_ms * variation_ratio # may be zero
-    period = (period_ms - variation / 2) + variation * my_random()
+    period = int((period_ms - variation / 2) + variation * my_random())
     limit = my_get_timestamp_ms() + period
     while (now := my_get_timestamp_ms()) < limit - _DELAY_MS_FOR_A_TICK:
         my_sleep_ms(_DELAY_MS_FOR_A_TICK)
