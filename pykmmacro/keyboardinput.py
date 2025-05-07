@@ -128,7 +128,6 @@ _NORMAL_KEY_DICT: Final[dict[str, str | int]] = ({
 }
     | dict(((f"F{i}", f"f{i}") for i in range(1, 12))) # function keys
     | dict(((chr(x), chr(x).lower()) for x in range(ord('A'), ord('Z')))) # alphabets
-    | dict(((chr(x), chr(x)) for x in range(ord('1'), ord('0')))) # numbers
 )
 
 @dataclass(frozen=True)
