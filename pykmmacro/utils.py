@@ -89,9 +89,12 @@ def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
     variation = period_ms * variation_ratio # may be zero
     period = (period_ms - variation / 2) + variation * my_random()
     limit = my_get_timestamp_ms() + period
-    while my_get_timestamp_ms() < limit:
+    while (now := my_get_timestamp_ms()) < limit - _DELAY_MS_FOR_A_TICK:
         my_sleep_ms(_DELAY_MS_FOR_A_TICK)
         yield
+    period_at_last = limit - now
+    if period_at_last > 0:
+        my_sleep_ms(period_at_last)
 
 def g_sleep(period_ms):
     yield from g_sleep_with_random(period_ms, variation_ratio=0.0)
