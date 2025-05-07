@@ -19,14 +19,14 @@ class TimeoutForWindowSwitch(Exception):
 #=============================================================================
 # Private function
 
-def _restore_window(hwnd):
+def _restore_window(hwnd: int):
     """
     Restore a window from maxmized/minimized.
     """
     # https://github.com/asweigart/PyGetWindow/blob/master/src/pygetwindow/_pygetwindow_win.py#L230-L232
+    assert hwnd != 0
     cmdShow = 0x9
-    ret = win32gui.ShowWindow(hwnd, cmdShow)
-    assert ret
+    win32gui.ShowWindow(hwnd, cmdShow)
 
 def _get_hwnd_of_active_window() -> int:
     return win32gui.GetForegroundWindow() # may be zero
