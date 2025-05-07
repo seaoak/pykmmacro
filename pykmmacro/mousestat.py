@@ -1,4 +1,5 @@
 from collections import deque
+from typing import Callable
 
 import pydirectinput
 from pynput import mouse
@@ -16,7 +17,7 @@ def get_mouse_position() -> PositionInScreen:
 # Mouse event listener
 # https://pypi.org/project/pynput/
 
-def setup_mouse_listener():
+def setup_mouse_listener() -> Callable[[], PositionInScreen | None]:
     # https://docs.python.org/3/library/collections.html#deque-objects
     # - deque is thread-safe.
     # - if deque is full, when a new item is added, the item at the opposite side will be discarded.
@@ -29,12 +30,13 @@ def setup_mouse_listener():
         except IndexError:
             return None
 
-    def on_click(x, y, button, pressed, _injected):
+    def on_click(x: int, y: int, button: mouse.Button, pressed: bool) -> bool | None:
         if button != mouse.Button.left:
-            return
+            return None
         if pressed:
-            return # ignore 'mouseDown' event (use 'mouseUp' event)
+            return None # ignore 'mouseDown' event (use 'mouseUp' event)
         queue.append(PositionInScreen(x, y))
+        return None
 
     listener = mouse.Listener(on_click=on_click)
 

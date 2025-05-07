@@ -1,6 +1,6 @@
 from collections import namedtuple
 from dataclasses import dataclass
-from typing import Final
+from typing import Callable, Final
 
 from pynput import keyboard
 
@@ -40,7 +40,7 @@ for keyname in _MODIFIER_KEY_DICT.keys():
 # truncate bits because Integer type has unlimited precision
 _BITMASK_FOR_TRUNCATE: Final[int] = 0xffffffff
 
-def setup_keyboard_listener():
+def setup_keyboard_listener() -> Callable[[ModifierKey], bool]:
     counter_for_listerner_thread = dict(((keyname, 0) for keyname in _MODIFIER_KEY_DICT.keys()))
     counter_for_main_thread = counter_for_listerner_thread.copy()
 
