@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
+import dataclasses
 from dataclasses import dataclass
 from typing import Final
 
@@ -16,6 +17,29 @@ _TIMEOUT_MS_FOR_WINDOW_SWITCH: Final[int] = 500
 
 class TimeoutForWindowSwitch(Exception):
     pass
+
+@dataclass(frozen=True)
+class _MyRect:
+    # the order of fields follows CSS (Cascading Style Sheet)
+    top: int
+    right: int
+    bottom: int
+    left: int
+
+    def __post_init__(self):
+        assert self.top <= self.bottom
+        assert self.left <= self.right
+
+    @property
+    def width(self):
+        return self.right - self.left # may be zero
+
+    @property
+    def height(self):
+        return self.bottom - self.top # may be zero
+
+    def asdict(self):
+        return dataclasses.asdict(self) | { "width": self.width, "height": self.height }
 
 #=============================================================================
 # Private function
@@ -36,27 +60,17 @@ def _get_client_rect(hwnd):
     """get client area of active window"""
     # https://mhammond.github.io/pywin32/win32gui__GetClientRect_meth.html
     assert hwnd != 0
-    rect = win32gui.GetClientRect(hwnd)
-    rect = dict(zip(("left", "top", "right", "bottom"), rect))
-    rect["width"] = rect["right"] - rect["left"]
-    rect["height"] = rect["bottom"] - rect["top"]
-    rect = namedtuple("ClientRect", rect.keys())(**rect)
-    assert rect.left <= rect.right
-    assert rect.top <= rect.bottom
-    return rect
+    t = win32gui.GetClientRect(hwnd)
+    rect = dict(zip(("left", "top", "right", "bottom"), t))
+    return _MyRect(**rect)
 
 def _get_window_rect(hwnd):
     """get the whole area of active window (include MENU and BORDER)"""
     # https://mhammond.github.io/pywin32/win32gui__GetWindowRect_meth.html
     assert hwnd != 0
-    rect = win32gui.GetWindowRect(hwnd)
-    rect = dict(zip(("left", "top", "right", "bottom"), rect))
-    rect["width"] = rect["right"] - rect["left"]
-    rect["height"] = rect["bottom"] - rect["top"]
-    rect = namedtuple("WindowRect", rect.keys())(**rect)
-    assert rect.left <= rect.right
-    assert rect.top <= rect.bottom
-    return rect
+    t = win32gui.GetWindowRect(hwnd)
+    rect = dict(zip(("left", "top", "right", "bottom"), t))
+    return _MyRect(**rect)
 
 def _get_window_title(hwnd):
     """get the title of active window"""
@@ -261,7 +275,7 @@ def get_active_window_info():
         "title":  title,
         "padding": padding_info,
         "client": client_rect,
-    } | window_rect._asdict()
+    } | window_rect.asdict()
     info = namedtuple("WindowInfo", info.keys())(**info)
     #print(f"{info=}")
     return info
