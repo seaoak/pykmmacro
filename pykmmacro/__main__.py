@@ -97,8 +97,8 @@ def main():
         print(f"mouse_move_relative: {diff=!r}")
         mouse_move_relative(*diff)
         my_sleep_a_moment()
-        pos = get_mouse_position().to_offset_in_client_region_of_active_window()
-        print(f"{pos=!r}")
+        offset = get_mouse_position().to_offset_in_client_region_of_active_window()
+        print(f"{offset=!r}")
         button = MOUSE_BUTTON.LEFT
         print(f"mouse_click: {button}")
         mouse_click(button)
