@@ -89,7 +89,7 @@ def _get_all_display_info():
         hMonitor, _hdcMonitor, _rect = monitor
         info = win32api.GetMonitorInfo(hMonitor.handle)
         #print(f"{info=!r}")
-        table = {
+        table_def = {
             "top":        info["Monitor"][1],
             "right":      info["Monitor"][2],
             "bottom":     info["Monitor"][3],
@@ -99,7 +99,7 @@ def _get_all_display_info():
             "is_primary": info["Flags"] == 1,
             "name":       info["Device"],
         }
-        table = namedtuple("MonitorInfo", table.keys())(**table)
+        table = namedtuple("MonitorInfo", table_def.keys())(**table_def)
         infos.append(table)
 
     return infos
@@ -262,13 +262,13 @@ def get_active_window_info():
         diff_y = window_rect.height - client_rect.height - client_rect.top
         assert diff_y >= padding_width, (diff_y, padding_width, window_rect, client_rect) # padding_top may be zero
 
-    padding_info = {
+    padding_info_def = {
         "top":    diff_y - padding_width,
         "right":  padding_width,
         "bottom": padding_width,
         "left":   padding_width,
     }
-    padding_info = namedtuple("PaddingInfo", padding_info.keys())(**padding_info)
+    padding_info = namedtuple("PaddingInfo", padding_info_def.keys())(**padding_info_def)
 
     info = {
         "hwnd": hwnd,
@@ -282,38 +282,38 @@ def get_active_window_info():
 
 def get_screen_info():
     monitors = _get_all_display_info()
-    origin = {
+    origin_def = {
         "x": -1 * min(monitor.left for monitor in monitors),
         "y": -1 * min(monitor.top for monitor in monitors),
     }
-    origin = namedtuple("ScreenOrigin", origin.keys())(**origin)
+    origin = namedtuple("ScreenOrigin", origin_def.keys())(**origin_def)
     assert origin.x >= 0
     assert origin.y >= 0
-    size = {
+    size_def = {
         "width":  max(monitor.right for monitor in monitors) - min(monitor.left for monitor in monitors),
         "height": max(monitor.bottom for monitor in monitors) - min(monitor.top for monitor in monitors),
     }
-    size = namedtuple("ScreenSize", size.keys())(**size)
+    size = namedtuple("ScreenSize", size_def.keys())(**size_def)
     assert size.width > 0
     assert size.height > 0
-    box = {
+    box_def = {
         "top":    min(monitor.top for monitor in monitors),
         "right":  max(monitor.right for monitor in monitors),
         "bottom": max(monitor.bottom for monitor in monitors),
         "left":   min(monitor.left for monitor in monitors),
     }
-    box = namedtuple("ScreenBox", box.keys())(**box)
+    box = namedtuple("ScreenBox", box_def.keys())(**box_def)
     assert box.top <= 0
     assert box.right > 0
     assert box.bottom > 0
     assert box.left <= 0
-    result = {
+    result_def = {
         "origin":   origin,
         "size":     size,
         "box":      box,
         "monitors": monitors,
     }
-    result = namedtuple("ScreenInfo", result.keys())(**result)
+    result = namedtuple("ScreenInfo", result_def.keys())(**result_def)
     #print(result)
     return result
 
