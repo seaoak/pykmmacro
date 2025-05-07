@@ -86,8 +86,8 @@ def _get_all_display_info():
     #print(f"{monitors=!r}")
     infos = []
     for monitor in monitors:
-        (hMonitor, hdcMonitor, PyRECT) = monitor
-        info = win32api.GetMonitorInfo(hMonitor)
+        hMonitor, _hdcMonitor, _rect = monitor
+        info = win32api.GetMonitorInfo(hMonitor.handle)
         #print(f"{info=!r}")
         table = {
             "top":        info["Monitor"][1],
@@ -182,7 +182,7 @@ class PositionInScreen:
     y: int
 
     def __str__(self):
-        return f"{__class__.__name__}({self.x}, {self.y})"
+        return f"{self.__class__.__name__}({self.x}, {self.y})"
 
     def move(self, diff_x, diff_y) -> PositionInScreen:
         return PositionInScreen(self.x + diff_x, self.y + diff_y)
@@ -204,7 +204,7 @@ class OffsetInScreen:
     y: int
 
     def __str__(self):
-        return f"{__class__.__name__}({self.x}, {self.y})"
+        return f"{self.__class__.__name__}({self.x}, {self.y})"
 
     def move(self, diff_x, diff_y) -> OffsetInScreen:
         return OffsetInScreen(self.x + diff_x, self.y + diff_y)
@@ -222,7 +222,7 @@ class OffsetInWindow:
     y: int
 
     def __str__(self):
-        return f"{__class__.__name__}({self.x}, {self.y})"
+        return f"{self.__class__.__name__}({self.x}, {self.y})"
     
     def move(self, diff_x, diff_y) -> OffsetInWindow:
         return OffsetInWindow(self.x + diff_x, self.y + diff_y)
