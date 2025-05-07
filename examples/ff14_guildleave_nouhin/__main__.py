@@ -26,7 +26,7 @@ class MyRecipeEarlyFinishError(MyError):
 #=============================================================================
 # check pixel
 
-_TABLE_OF_PIXEL_COLOR: Final[dict[str, list[tuple[OffsetInScreen | None, Color | None, bool]]]] = {
+_TABLE_OF_PIXEL_COLOR: Final[dict[str, list[tuple[OffsetInWindow | None, Color | None, bool]]]] = {
     'is_green_check_displayed': [
         (OffsetInWindow(979, 234),  Color.from_int(0x91E4A8), True),
         (None,                      None,                     False),
