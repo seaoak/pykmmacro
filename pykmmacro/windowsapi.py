@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from collections import namedtuple
 from dataclasses import dataclass
-from __future__ import annotations
 from typing import Final
 
 import win32api
@@ -317,18 +318,15 @@ def activate_window(title: str) -> bool:
     This function is synchronous (blocking) API.
     """
     assert title
-    data = {
-        'title': title,
-        'hwnd': 0,
-    }
-    def callback(hwnd, data):
-        assert hwnd != 0
-        title = _get_window_title(hwnd)
-        if title and title == data['title']:
-            data['hwnd'] = hwnd
+    hwnd = 0
+    def callback(hwnd2: int, _data):
+        nonlocal hwnd
+        assert hwnd2 != 0
+        title2 = _get_window_title(hwnd2)
+        if title2 and title2 == title:
+            hwnd = hwnd2
             return False # stop enumeration
-    win32gui.EnumWindows(callback, data)
-    hwnd = data['hwnd']
+    win32gui.EnumWindows(callback, None)
     if hwnd == 0:
         return False
     _restore_window(hwnd)
