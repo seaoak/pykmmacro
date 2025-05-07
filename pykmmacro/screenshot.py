@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 from PIL import ImageGrab
@@ -13,12 +15,13 @@ class Color:
     def __str__(self):
         return f"#{self.to_int():06X}"
 
-    def from_int(value: int):
+    @classmethod
+    def from_int(cls, value: int) -> Color:
         assert 0 <= value and value <= 0xffffff
         red =   (value >> 16) & 0xff
         green = (value >>  8) & 0xff
         blue  =  value        & 0xff
-        return Color(red, green, blue)
+        return cls(red, green, blue)
 
     def to_int(self) -> int:
         assert 0 <= self.red and self.red <= 0xff
