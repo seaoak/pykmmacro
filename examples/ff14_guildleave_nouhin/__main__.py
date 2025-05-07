@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import Final
+from typing import Callable, Final, Generator
 
 from pykmmacro import *
 
@@ -59,7 +59,7 @@ class Status:
 
     def __repr__(self):
         fields = ", ".join((f"{label}={getattr(self, label)}" for label in self.__dict__.keys() if label.startswith("is_")))
-        return f"{__class__.__name__}({fields})"
+        return f"{self.__class__.__name__}({fields})"
 
     def is_already_completed(self) -> bool:
         return self.is_green_check_displayed
@@ -67,7 +67,7 @@ class Status:
 #=============================================================================
 # Executor
 
-def run(generator, callback_for_each_yield):
+def run(generator: Generator, callback_for_each_yield: Callable[[], None]):
     for _ in generator:
         callback_for_each_yield()
 
@@ -103,20 +103,19 @@ def get_package_basename():
     _, _, basename = __package__.rpartition('.')
     return basename
 
-def g_main():
+def g_main() -> Generator:
     print(f"{get_package_basename()}: start at {my_get_str_timestamp()}")
 
     args: Final = sys.argv
     print(f"{args=!r}")
     if len(args) != 2:
         usage(args)
-    _, num_of_loop = args
-    if not num_of_loop or not isinstance(num_of_loop, str):
+    _, arg_num_of_loop = args
+    if not arg_num_of_loop or not isinstance(arg_num_of_loop, str):
         usage(args)
     try:
-        x = int(num_of_loop)
-        assert f"{x}" == num_of_loop
-        num_of_loop = x
+        num_of_loop = int(arg_num_of_loop)
+        assert f"{num_of_loop}" == arg_num_of_loop
         assert num_of_loop > 0
     except Exception:
         print(f"ERROR: first argument should be an positive integer: \"{num_of_loop}\"")
