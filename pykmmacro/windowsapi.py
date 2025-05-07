@@ -1,23 +1,12 @@
 from collections import namedtuple
 from dataclasses import dataclass
+from __future__ import annotations
 from typing import Final
 
 import win32api
 import win32gui
 
 from .utils import *
-
-#=============================================================================
-# Declaration
-
-class PositionInScreen:
-    pass
-
-class OffsetInWindow:
-    pass
-
-class OffsetInScreen:
-    pass
 
 #=============================================================================
 # Definition
