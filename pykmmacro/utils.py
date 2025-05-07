@@ -1,13 +1,14 @@
 import itertools
 import random
 import time
+from typing import Final
 
 #=============================================================================
 # Constant
 
-_DELAY_MS_FOR_A_MOMENT = 100
-_DELAY_MS_FOR_ENSURE = 200
-_DELAY_MS_FOR_A_TICK = 50
+_DELAY_MS_FOR_A_MOMENT: Final[int] = 100
+_DELAY_MS_FOR_ENSURE: Final[int] = 200
+_DELAY_MS_FOR_A_TICK: Final[int] = 50
 
 #=============================================================================
 # Exception

@@ -1,5 +1,6 @@
 from collections import namedtuple
 from dataclasses import dataclass
+from typing import Final
 
 import pydirectinput
 
@@ -15,18 +16,18 @@ class _MouseButton:
     name: str
     code: str
 
-_MOUSE_BUTTON_DICT = {
+_MOUSE_BUTTON_DICT: Final[dict[str, str]] = {
     'LEFT': 'left',
     'RIGHT': 'right',
     'MIDDLE': 'middle',
 }
 
-MOUSE_BUTTON = namedtuple("MouseButton", _MOUSE_BUTTON_DICT.keys())(**dict(((name, _MouseButton(name, value)) for name, value in _MOUSE_BUTTON_DICT.items())))
+MOUSE_BUTTON: Final = namedtuple("MouseButton", _MOUSE_BUTTON_DICT.keys())(**dict(((name, _MouseButton(name, value)) for name, value in _MOUSE_BUTTON_DICT.items())))
 
 #=============================================================================
 # Private function
 
-_pending_buttons: set[_MouseButton] = set()
+_pending_buttons: Final[set[_MouseButton]] = set()
 
 def _cleanup():
     if _pending_buttons:

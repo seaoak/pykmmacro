@@ -1,15 +1,16 @@
 import os
 from pathlib import Path, WindowsPath
 import sys
+from typing import Final
 
 from pykmmacro import *
 
 #=============================================================================
 # Constants
 
-_EXPECTED_WINDOW_TITLE = "FINAL FANTASY XIV"
+_EXPECTED_WINDOW_TITLE: Final = "FINAL FANTASY XIV"
 
-_TIMEOUT_MS_FOR_GENERAL = 10 * 1000
+_TIMEOUT_MS_FOR_GENERAL: Final = 10 * 1000
 
 #=============================================================================
 # Exception
@@ -35,9 +36,9 @@ def check_window_title(window_info=None):
 #=============================================================================
 # check pixel
 
-_DIFFERENCE_FROM_KMMACRO = (2565 - 2581, 2105 - 2167)
+_DIFFERENCE_FROM_KMMACRO: Final = (2565 - 2581, 2105 - 2167)
 
-_TABLE_OF_PIXEL_COLOR = {
+_TABLE_OF_PIXEL_COLOR: Final = {
     'is_bright_dig_icon_slot8_hotbar1': [
         (OffsetInWindow(2581, 2167).move(*_DIFFERENCE_FROM_KMMACRO),    Color.from_int(0xFFFFE2), True),
         (OffsetInWindow(2581, 2167).move(*_DIFFERENCE_FROM_KMMACRO),    Color.from_int(0x7F7F71), False),

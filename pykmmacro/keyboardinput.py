@@ -1,6 +1,7 @@
 import atexit
 from collections import namedtuple
 from dataclasses import dataclass
+from typing import Final
 
 import pydirectinput
 
@@ -12,7 +13,7 @@ from .utils import *
 #=============================================================================
 # Key mapping (for Japanese keyboard)
 
-_MODIFIER_DICT = {
+_MODIFIER_DICT: Final[dict[str, int]] = {
     'NONE':   (0x00),
 
     'SHIFT':  (0x01 << 0),
@@ -31,9 +32,9 @@ _MODIFIER_DICT = {
     'LWIN':   (0x01 << 3),
 }
 
-MODIFIER = namedtuple('Modifier', _MODIFIER_DICT.keys())(**_MODIFIER_DICT)
+MODIFIER: Final = namedtuple('Modifier', _MODIFIER_DICT.keys())(**_MODIFIER_DICT)
 
-_MODIFIER_KEY_DICT = {
+_MODIFIER_KEY_DICT: Final[dict[str, str]] = {
     'SHIFT': 'shiftleft',
     'CTRL': 'ctrlleft',
     'ALT': 'altleft',
@@ -50,7 +51,7 @@ _MODIFIER_KEY_DICT = {
     'LWIN': 'winleft',
 }
 
-_NORMAL_KEY_DICT = ({
+_NORMAL_KEY_DICT: Final[dict[str, str | int]] = ({
     'CapsLock': 'capslock',
     'NumLock': 'numlock',
 
@@ -154,7 +155,7 @@ _ModifierKey.__init__ = my_fail_always # disable constructor
 #=============================================================================
 # Shared variables
 
-_pending_keys: set[AllKey] = set()
+_pending_keys: Final[set[AllKey]] = set()
 
 _is_handler_at_exit_already_registered = False
 

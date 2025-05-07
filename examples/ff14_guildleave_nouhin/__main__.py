@@ -1,14 +1,15 @@
 import os
 import sys
+from typing import Final
 
 from pykmmacro import *
 
 #=============================================================================
 # Constants
 
-_EXPECTED_WINDOW_TITLE = "FINAL FANTASY XIV"
+_EXPECTED_WINDOW_TITLE: Final = "FINAL FANTASY XIV"
 
-_TIMEOUT_MS_FOR_GENERAL = 10 * 1000
+_TIMEOUT_MS_FOR_GENERAL: Final = 10 * 1000
 
 #=============================================================================
 # Exception
@@ -25,7 +26,7 @@ class MyRecipeEarlyFinishError(MyError):
 #=============================================================================
 # check pixel
 
-_TABLE_OF_PIXEL_COLOR: dict[str, list[tuple[OffsetInScreen | None, Color | None, bool]]] = {
+_TABLE_OF_PIXEL_COLOR: Final[dict[str, list[tuple[OffsetInScreen | None, Color | None, bool]]]] = {
     'is_green_check_displayed': [
         (OffsetInWindow(979, 234),  Color.from_int(0x91E4A8), True),
         (None,                      None,                     False),
@@ -105,7 +106,7 @@ def get_package_basename():
 def g_main():
     print(f"{get_package_basename()}: start at {my_get_str_timestamp()}")
 
-    args = sys.argv
+    args: Final = sys.argv
     print(f"{args=!r}")
     if len(args) != 2:
         usage(args)
@@ -137,20 +138,20 @@ def g_main():
     assert is_rect_intersect(window_info.client, window_info)
     assert not is_in_rect((100, 100), window_info)
 
-    get_position_of_latest_click = setup_mouse_listener()
+    get_position_of_latest_click: Final = setup_mouse_listener()
 
     _ = get_position_of_latest_click() # discard old input
     print("waiting for clicking 1st NPC")
     while (pos1 := get_position_of_latest_click()) is None:
         yield from g_sleep_a_moment()
-    offset1 = pos1.to_offset_in_client_region_of_active_window()
+    offset1: Final = pos1.to_offset_in_client_region_of_active_window()
     print(f"detect 1st click at {pos1=!r} as {offset1=!r}")
 
     _ = get_position_of_latest_click() # discard old input
     print("waiting for 2nd NPC")
     while (pos2 := get_position_of_latest_click()) is None:
         yield from g_sleep_a_moment()
-    offset2 = pos2.to_offset_in_client_region_of_active_window()
+    offset2: Final = pos2.to_offset_in_client_region_of_active_window()
     print(f"detect 2nd click at {pos2=!r} as {offset2=!r}")
 
     yield from g_sleep(3 * 1000)

@@ -1,5 +1,6 @@
 from collections import namedtuple
 from dataclasses import dataclass
+from typing import Final
 
 from pynput import keyboard
 
@@ -12,7 +13,7 @@ from .utils import *
 # Refer to the `pynput` repository on GitHub
 # https://github.com/moses-palmer/pynput/blob/master/lib/pynput/keyboard/_win32.py
 
-_MODIFIER_KEY_DICT = {
+_MODIFIER_KEY_DICT: Final[dict[str, keyboard.Key]] = {
     'LSHIFT': keyboard.Key.shift_l,
     'LCTRL': keyboard.Key.ctrl_l,
     'LALT': keyboard.Key.alt_l,
@@ -24,7 +25,7 @@ _MODIFIER_KEY_DICT = {
     'RWIN': keyboard.Key.cmd_r,
 }
 
-_KEYCODE_TO_KEYNAME = dict(((keycode, keyname) for keyname, keycode in _MODIFIER_KEY_DICT.items()))
+_KEYCODE_TO_KEYNAME: Final[dict[keyboard.Key, str]] = dict(((keycode, keyname) for keyname, keycode in _MODIFIER_KEY_DICT.items()))
 
 @dataclass(frozen=True)
 class ModifierKey:
@@ -39,7 +40,7 @@ ModifierKey.__init__ = my_fail_always # disable constructor
 # Public function
 
 # truncate bits because Integer type has unlimited precision
-_BITMASK_FOR_TRUNCATE = 0xffffffff
+_BITMASK_FOR_TRUNCATE: Final[int] = 0xffffffff
 
 def setup_keyboard_listener():
     counter_for_listerner_thread = dict(((keyname, 0) for keyname in _MODIFIER_KEY_DICT.keys()))

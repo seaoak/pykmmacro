@@ -1,5 +1,6 @@
 from collections import namedtuple
 from dataclasses import dataclass
+from typing import Final
 
 import win32api
 import win32gui
@@ -21,7 +22,7 @@ class OffsetInScreen:
 #=============================================================================
 # Definition
 
-_TIMEOUT_MS_FOR_WINDOW_SWITCH = 500
+_TIMEOUT_MS_FOR_WINDOW_SWITCH: Final[int] = 500
 
 class TimeoutForWindowSwitch(Exception):
     pass
