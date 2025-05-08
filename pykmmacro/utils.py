@@ -92,8 +92,9 @@ def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
     period = period_ms - variation / 2 + variation * my_random()
     limit = my_get_timestamp_ms() + period
     while (now := my_get_timestamp_ms()) < limit - _DELAY_MS_FOR_A_TICK:
-        my_sleep_ms(_DELAY_MS_FOR_A_TICK)
         yield
+        my_sleep_ms(_DELAY_MS_FOR_A_TICK)
+    yield # use `yield` at least once to avoid long time blocking
     period_at_last = limit - now
     if period_at_last > 0:
         time.sleep(period_at_last / 1000) # use `time.sleep()` directly to make leaf period (<=1ms) effective
