@@ -78,10 +78,9 @@ def my_sleep_ms(period_ms: int):
 def my_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
     assert period_ms > 0
     assert 0 <= variation_ratio and variation_ratio < 1.0
-    variation = int(period_ms * variation_ratio) # may be zero
-    assert variation % 2 == 0
-    period = (period_ms - variation // 2) + int(variation * my_random())
-    my_sleep_ms(period)
+    variation = period_ms * variation_ratio # may be zero
+    period = period_ms - variation / 2 + variation * my_random()
+    time.sleep(period / 1000) # use `time.sleep()` directly to make leaf period (<=1ms) effective
 
 def my_sleep_a_moment():
     my_sleep_with_random(_DELAY_MS_FOR_A_MOMENT, variation_ratio=0.2)
@@ -90,14 +89,14 @@ def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
     assert period_ms > 0
     assert 0 <= variation_ratio and variation_ratio < 1.0
     variation = period_ms * variation_ratio # may be zero
-    period = int((period_ms - variation / 2) + variation * my_random())
+    period = period_ms - variation / 2 + variation * my_random()
     limit = my_get_timestamp_ms() + period
     while (now := my_get_timestamp_ms()) < limit - _DELAY_MS_FOR_A_TICK:
         my_sleep_ms(_DELAY_MS_FOR_A_TICK)
         yield
     period_at_last = limit - now
     if period_at_last > 0:
-        my_sleep_ms(period_at_last)
+        time.sleep(period_at_last / 1000) # use `time.sleep()` directly to make leaf period (<=1ms) effective
 
 def g_sleep(period_ms):
     yield from g_sleep_with_random(period_ms, variation_ratio=0.0)
