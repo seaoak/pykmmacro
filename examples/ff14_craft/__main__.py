@@ -1,5 +1,6 @@
 import os
 from pathlib import Path, WindowsPath
+import re
 import sys
 from typing import Final
 
@@ -11,6 +12,8 @@ from pykmmacro import *
 _EXPECTED_WINDOW_TITLE: Final = "FINAL FANTASY XIV"
 
 _TIMEOUT_MS_FOR_GENERAL: Final = 10 * 1000
+
+_REGEXP_FOR_ACTION_NAME: Final = re.compile(r"^[I\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$")
 
 #=============================================================================
 # Exception
@@ -156,6 +159,7 @@ def parse_recipe_file(generator_for_lines) -> list[str]:
             assert -1 == line.find(' ')
             assert -1 == line.find('\t')
             assert -1 == line.find('　')
+            assert _REGEXP_FOR_ACTION_NAME.match(line), f"Action name should be a string of I/Kanji/Hiragana/Katakana: {line}"
             yield line
     return [text for text in generator()] # make a real list to validate all lines in input
 
