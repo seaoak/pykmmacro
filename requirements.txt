@@ -1,7 +1,6 @@
 mypy==1.15.0
 mypy_extensions==1.1.0
 pillow==11.2.1
-PyDirectInput @ file:///J:/00_Seaoak/Python/PyKMmacro/master/pydirectinput
 pynput==1.8.1
 pyperclip==1.9.0
 pywin32==310

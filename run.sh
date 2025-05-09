@@ -19,6 +19,6 @@ date -R
 uname -a
 which python
 python -VV
-python -m pip freeze | tee ./requirements.txt
+python -m pip freeze | grep -v -i -E '^pydirectinput\s' | tee ./requirements.txt
 
 exec python $*
