@@ -45,6 +45,26 @@ In the macro file, the folowing features are available:
 - Windows 11 23H2 (x86_64) or later
 - Python 3.13.3 or later (not tested with previous versions)
 
+## Setup
+
+[`pydirectinput` package in PyPI](https://pypi.org/project/PyDirectInput/) is version `1.0.4`, and does not support NumPad keys (Ten-key).
+However, [`pydirectinput` repository on GitHub](https://github.com/learncodebygaming/pydirectinput/) has newer codes that support them.
+So please clone the repository and checkout and `pip install` as follows:
+
+```bash
+$ git clone https://github.com/learncodebygaming/pydirectinput.git
+$ cd pydirectinput
+$ git checkout a585d044aed678576fefd24e7ad0c5945ab52366
+$ cd ..
+$ python -m pip install ./pydirectinput
+```
+
+Next, please install PyPI packages with `requirements.txt` as follows:
+
+```bash
+$ python -m pip install -r requirements.txt
+```
+
 ## License
 
 MIT
