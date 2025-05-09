@@ -7,7 +7,7 @@ from typing import Final
 # Constant
 
 _DELAY_MS_FOR_A_MOMENT: Final[int] = 100
-_DELAY_MS_FOR_ENSURE: Final[int] = 200
+_DELAY_MS_FOR_ENSURE: Final[int] = 300
 _DELAY_MS_FOR_A_TICK: Final[int] = 50
 
 #=============================================================================
