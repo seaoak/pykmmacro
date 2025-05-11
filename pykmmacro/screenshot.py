@@ -47,12 +47,12 @@ class Screenshot:
             assert self.image.height == self.window_info.client.height, (self.image.height, self.window_info.client.width, self.image, self.window_info)
 
     def get_pixel(self, offset: OffsetInWindow) -> Color:
-        assert is_in_rect((offset.x, offset.y), self.window_info.client), (offset, self.window_info.client, self.window)
+        assert is_in_rect((*offset,), self.window_info.client), (offset, self.window_info.client, self.window)
         if self.is_all_screens:
             offset_in_screen = offset.to_position_in_screen(window_info=self.window_info, screen_info=self.screen_info).to_offset_in_screen(screen_info=self.screen_info)
-            color = self.image.getpixel((offset_in_screen.x, offset_in_screen.y))
+            color = self.image.getpixel((*offset_in_screen,))
         else:
-            color = self.image.getpixel((offset.x, offset.y))
+            color = self.image.getpixel((*offset,))
         assert isinstance(color, tuple)
         assert len(color) == 3 # for Windows ("4" for macOS because color is RGBA)
         return Color(*color)
