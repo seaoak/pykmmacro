@@ -31,17 +31,19 @@ class Color:
         return (self.red << 16) | (self.green << 8) | self.blue
 
 class Screenshot:
-    def __init__(self):
+    def __init__(self, *, all_screens=False):
         self.screen_info = get_screen_info()
         self.window_info = get_active_window_info()
-        hwnd = self.window_info.hwnd
-        self.is_all_screens = hwnd == 0
+        self.is_all_screens = all_screens
         if self.is_all_screens:
-            print(f"WARNING: {__package__}.{__class__.__name__}(): no active window (use screenshot of all screens instead)")
             self.image = ImageGrab.grab(all_screens=True)
             assert self.image.width == self.screen_info.size.width, (self.image.width, self.screen_info.size.width, self.image, self.screen_info)
             assert self.image.height == self.screen_info.size.height, (self.image.height, self.screen_info.size.height, self.image, self.screen_info)
         else:
+            assert self.window_info.client.width > 0
+            assert self.window_info.client.height > 0
+            hwnd = self.window_info.hwnd
+            assert hwnd
             self.image = ImageGrab.grab(window=hwnd)
             assert self.image.width == self.window_info.client.width, (self.image.width, self.window_info.client.width, self.image, self.window_info)
             assert self.image.height == self.window_info.client.height, (self.image.height, self.window_info.client.width, self.image, self.window_info)
