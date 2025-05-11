@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from PIL import ImageGrab
 
+from .utils import is_in_rect
 from .windowsapi import *
 
 @dataclass(frozen=True)
@@ -31,15 +32,29 @@ class Color:
 
 class Screenshot:
     def __init__(self):
-        self.image = ImageGrab.grab(all_screens=True)
         self.screen_info = get_screen_info()
         self.window_info = get_active_window_info()
+        hwnd = self.window_info.hwnd
+        self.is_all_screens = hwnd == 0
+        if self.is_all_screens:
+            print(f"WARNING: {__package__}.{__class__.__name__}(): no active window (use screenshot of all screens instead)")
+            self.image = ImageGrab.grab(all_screens=True)
+            assert self.image.width == self.screen_info.size.width, (self.image.width, self.screen_info.size.width, self.image, self.screen_info)
+            assert self.image.height == self.screen_info.size.height, (self.image.height, self.screen_info.size.height, self.image, self.screen_info)
+        else:
+            self.image = ImageGrab.grab(window=hwnd)
+            assert self.image.width == self.window_info.client.width, (self.image.width, self.window_info.client.width, self.image, self.window_info)
+            assert self.image.height == self.window_info.client.height, (self.image.height, self.window_info.client.width, self.image, self.window_info)
 
     def get_pixel(self, offset: OffsetInWindow) -> Color:
-        offset_in_screen = offset.to_position_in_screen(window_info=self.window_info, screen_info=self.screen_info).to_offset_in_screen(screen_info=self.screen_info)
-        color = self.image.getpixel((offset_in_screen.x, offset_in_screen.y))
+        assert is_in_rect((offset.x, offset.y), self.window_info.client), (offset, self.window_info.client, self.window)
+        if self.is_all_screens:
+            offset_in_screen = offset.to_position_in_screen(window_info=self.window_info, screen_info=self.screen_info).to_offset_in_screen(screen_info=self.screen_info)
+            color = self.image.getpixel((offset_in_screen.x, offset_in_screen.y))
+        else:
+            color = self.image.getpixel((offset.x, offset.y))
         assert isinstance(color, tuple)
-        assert len(color) == 3
+        assert len(color) == 3 # for Windows ("4" for macOS because color is RGBA)
         return Color(*color)
 
     def search_pixel(self, expected_color:Color, center: OffsetInWindow, width: int, height: int = 0) -> None | OffsetInWindow:
