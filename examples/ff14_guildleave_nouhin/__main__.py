@@ -166,7 +166,7 @@ def g_main() -> Generator:
         yield from g_sleep_a_moment()
         mouse_click()
         yield from g_sleep_to_ensure()
-    
+
         key_press(NormalKey.NUM_0)
         yield from g_sleep(1*1000) # wait for window open
         yield from g_sleep_a_moment()

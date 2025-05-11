@@ -200,7 +200,7 @@ class PositionInScreen:
 
     def to_offset_in_screen(self, /, *, screen_info=None) -> OffsetInScreen:
         return _convert_position_in_screen_to_offset_in_screen(self, screen_info=screen_info)
-    
+
     def to_offset_in_client_region_of_active_window(self, /, *, window_info=None, screen_info=None) -> OffsetInWindow:
         return _convert_position_in_screen_to_offset_in_client_region_of_active_window(self, window_info=window_info, screen_info=screen_info)
 
@@ -246,7 +246,7 @@ class OffsetInWindow:
             yield self.x
             yield self.y
         return g_next()
-    
+
     def move(self, diff_x, diff_y) -> OffsetInWindow:
         return OffsetInWindow(self.x + diff_x, self.y + diff_y)
 
