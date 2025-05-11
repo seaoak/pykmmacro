@@ -282,6 +282,11 @@ def g_main():
 
 def main():
     callback_for_each_yield = crate_callback_func()
-    run(g_main(), callback_for_each_yield)
+    try:
+        run(g_main(), callback_for_each_yield)
+    except Exception as ex:
+        # show diaglog to change FF14 window from foreground to background
+        show_dialog(f"ERROR: {ex!r}")
+        raise ex
 
 main()
