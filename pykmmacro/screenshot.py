@@ -36,6 +36,8 @@ class Screenshot:
         self.window_info = get_active_window_info()
         self.is_all_screens = all_screens
         if self.is_all_screens:
+            # screenshot of all screens is affected by "monitor fading" of DisplayFusion
+            # (screnshot of specified window is not affected)
             self.image = ImageGrab.grab(all_screens=True)
             assert self.image.width == self.screen_info.size.width, (self.image.width, self.screen_info.size.width, self.image, self.screen_info)
             assert self.image.height == self.screen_info.size.height, (self.image.height, self.screen_info.size.height, self.image, self.screen_info)
