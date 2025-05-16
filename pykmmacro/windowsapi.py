@@ -214,6 +214,10 @@ class OffsetInScreen:
     x: int
     y: int
 
+    def __post_init__(self):
+        assert self.x >= 0
+        assert self.y >= 0
+
     def __str__(self):
         return f"{self.__class__.__name__}({self.x}, {self.y})"
 
@@ -237,6 +241,10 @@ class OffsetInWindow:
 
     x: int
     y: int
+
+    def __post_init__(self):
+        assert self.x >= 0
+        assert self.y >= 0
 
     def __str__(self):
         return f"{self.__class__.__name__}({self.x}, {self.y})"
