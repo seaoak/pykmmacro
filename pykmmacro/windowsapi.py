@@ -190,10 +190,8 @@ class PositionInScreen:
         return f"{self.__class__.__name__}({self.x}, {self.y})"
 
     def __iter__(self):
-        def g_next():
-            yield self.x
-            yield self.y
-        return g_next()
+        yield self.x
+        yield self.y
 
     def move(self, diff_x, diff_y) -> PositionInScreen:
         return PositionInScreen(self.x + diff_x, self.y + diff_y)
@@ -222,10 +220,8 @@ class OffsetInScreen:
         return f"{self.__class__.__name__}({self.x}, {self.y})"
 
     def __iter__(self):
-        def g_next():
-            yield self.x
-            yield self.y
-        return g_next()
+        yield self.x
+        yield self.y
 
     def move(self, diff_x, diff_y) -> OffsetInScreen:
         return OffsetInScreen(self.x + diff_x, self.y + diff_y)
@@ -250,10 +246,8 @@ class OffsetInWindow:
         return f"{self.__class__.__name__}({self.x}, {self.y})"
 
     def __iter__(self):
-        def g_next():
-            yield self.x
-            yield self.y
-        return g_next()
+        yield self.x
+        yield self.y
 
     def move(self, diff_x, diff_y) -> OffsetInWindow:
         return OffsetInWindow(self.x + diff_x, self.y + diff_y)
