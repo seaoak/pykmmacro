@@ -19,6 +19,7 @@ date -R
 uname -a
 which python
 python -VV
+python -m sysconfig
 python -m pip freeze | grep -v -i -E '^pydirectinput\s' | tee ./requirements.txt
 
 exec python $*
