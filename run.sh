@@ -29,9 +29,9 @@ export PYTHONUNBUFFERED=1
 
 date -R
 uname -a
-which python
-python -VV
-python -m sysconfig
-python -m pip freeze | grep -v -i ' @ file:///' | tee ./requirements.txt
+which py
+py -VV
+py -m sysconfig
+py -m pip freeze | grep -v -i ' @ file:///' | tee ./requirements.txt
 
-exec python $*
+exec py $*
