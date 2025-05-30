@@ -15,6 +15,18 @@ fi
 
 set -x
 
+# enable "dev mode" for Python interpreter
+export PYTHONDEVMODE=1
+
+# enable SIGSEGV handler for Python interpreter
+export PYTHONFAULTHANDLER=1
+
+# always use UTF-8 encoding for stdin/stdout/stderr even if they are redirected
+export PYTHONIOENCODING='utf-8'
+
+# disable buffering of stdout (same as `-u` command-line option)
+export PYTHONUNBUFFERED=1
+
 date -R
 uname -a
 which python
