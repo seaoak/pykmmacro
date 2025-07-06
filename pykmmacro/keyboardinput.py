@@ -222,7 +222,7 @@ def key_press(key: NormalKey | None, modifier=MODIFIER.NONE, /) -> None:
         if key is None:
             return
         _key_down(key)
-        my_sleep_with_random(14, variation_ratio=2/14) # use specific period instead of `my_sleep_a_moment()` because max 17ms wait cause key repeat
+        my_sleep_with_random(12, variation_ratio=2/12) # use specific period instead of `my_sleep_a_moment()` because max 15ms wait cause key repeat
         _key_up(key)
 
     prefix = ''
