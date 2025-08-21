@@ -1,6 +1,5 @@
-import os
 import sys
-from typing import Callable, Final, Generator
+from typing import Any, Callable, Final, Generator, Iterable, NoReturn
 
 from pykmmacro import *
 
@@ -67,7 +66,7 @@ class Status:
 #=============================================================================
 # Executor
 
-def run(generator: Generator, callback_for_each_yield: Callable[[], None]):
+def run(generator: Generator[None], callback_for_each_yield: Callable[[], Any]):
     for _ in generator:
         callback_for_each_yield()
 
@@ -95,15 +94,16 @@ def crate_callback_func():
 
     return callback_func
 
-def usage(_args):
+def usage(_args: Iterable[str]) -> NoReturn:
     print(f"Usage: python -m {__package__} num-of-loop")
     sys.exit(1)
 
 def get_package_basename():
+    assert __package__
     _, _, basename = __package__.rpartition('.')
     return basename
 
-def g_main() -> Generator:
+def g_main() -> Generator[None]:
     print(f"{get_package_basename()}: start at {my_get_str_timestamp()}")
 
     args: Final = sys.argv
@@ -111,14 +111,14 @@ def g_main() -> Generator:
     if len(args) != 2:
         usage(args)
     _, arg_num_of_loop = args
-    if not arg_num_of_loop or not isinstance(arg_num_of_loop, str):
+    if not arg_num_of_loop:
         usage(args)
     try:
         num_of_loop = int(arg_num_of_loop)
         assert f"{num_of_loop}" == arg_num_of_loop
         assert num_of_loop > 0
     except Exception:
-        print(f"ERROR: first argument should be an positive integer: \"{num_of_loop}\"")
+        print(f"ERROR: first argument should be an positive integer: \"{arg_num_of_loop}\"")
         usage(args)
 
     print("activate FF14 window")
