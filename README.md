@@ -65,6 +65,17 @@ Next, please install PyPI packages with `requirements.txt` as follows:
 $ python -m pip install -r requirements.txt
 ```
 
+(optional)
+`pydirectinput` package does not have Type Hints.
+So I create an original stub file (`.pyi` file) for `pydirectinput` package.
+To enable it, please copy it into the `pydirectinput` directory in `platlib` directory as follows:
+
+```bash
+$ cp -p ./stub/pydirectinput/__init__.pyi ./path/to/venv/Lib/site-packages/pydirectinput/
+```
+
+(NOTE: I know this looks so **hacky**. Please let me know better way.)
+
 ## License
 
 MIT
