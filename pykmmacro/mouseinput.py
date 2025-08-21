@@ -79,4 +79,4 @@ def mouse_move_to(offset: OffsetInWindow):
     Move mouse cursor to specified relative position
     """
     pos = offset.to_position_in_screen()
-    pydirectinput.moveTo(*pos)
+    pydirectinput.moveTo(*pos) # pyright: ignore[reportArgumentType]

@@ -193,7 +193,7 @@ class PositionInScreen:
         yield self.x
         yield self.y
 
-    def move(self, diff_x, diff_y) -> PositionInScreen:
+    def move(self, diff_x: int, diff_y: int) -> PositionInScreen:
         return PositionInScreen(self.x + diff_x, self.y + diff_y)
 
     def to_offset_in_screen(self, /, *, screen_info=None) -> OffsetInScreen:
@@ -223,7 +223,7 @@ class OffsetInScreen:
         yield self.x
         yield self.y
 
-    def move(self, diff_x, diff_y) -> OffsetInScreen:
+    def move(self, diff_x: int, diff_y: int) -> OffsetInScreen:
         return OffsetInScreen(self.x + diff_x, self.y + diff_y)
 
     def to_position_in_screen(self, /, *, screen_info=None) -> PositionInScreen:
@@ -249,7 +249,7 @@ class OffsetInWindow:
         yield self.x
         yield self.y
 
-    def move(self, diff_x, diff_y) -> OffsetInWindow:
+    def move(self, diff_x: int, diff_y: int) -> OffsetInWindow:
         return OffsetInWindow(self.x + diff_x, self.y + diff_y)
 
     def to_position_in_screen(self, /, *, window_info=None, screen_info=None) -> PositionInScreen:
@@ -349,7 +349,7 @@ def show_dialog(text: str) -> None:
     flags |= 0x0     # MB_OK
     flags |= 0x10000 # MB_SETFOREGROUND
     flags |= 0x40000 # MB_TOPMOST
-    win32gui.MessageBox(None, text, "PyKMmacro Dialog", flags)
+    win32gui.MessageBox(None, text, "PyKMmacro Dialog", flags) # type: ignore
 
 def activate_window(title: str) -> bool:
     """
@@ -358,7 +358,7 @@ def activate_window(title: str) -> bool:
     """
     assert title
     hwnd = 0
-    def callback(hwnd2: int, _data):
+    def callback(hwnd2: int, _data: Any):
         nonlocal hwnd
         assert hwnd2 != 0
         title2 = _get_window_title(hwnd2)

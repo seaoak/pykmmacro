@@ -31,7 +31,7 @@ class Color:
         return (self.red << 16) | (self.green << 8) | self.blue
 
 class Screenshot:
-    def __init__(self, *, all_screens=False):
+    def __init__(self, *, all_screens: bool = False):
         self.screen_info = get_screen_info()
         self.window_info = get_active_window_info()
         self.is_all_screens = all_screens
@@ -75,7 +75,7 @@ class Screenshot:
             return offset # return immediately at the first hit
         return None
 
-    def scan_pixel(self, expected_color:Color, base: OffsetInWindow, width: int, height: int = 0, /, *, debug_print=False):
+    def scan_pixel(self, expected_color:Color, base: OffsetInWindow, width: int, height: int = 0, /, *, debug_print: bool = False):
         """
         Generate offsets in active window matched to expected color in specified region of active window.
         """

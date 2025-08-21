@@ -1,7 +1,7 @@
 import atexit
 from collections import namedtuple
 from dataclasses import dataclass
-from typing import Final
+from typing import Any, Callable, Final
 
 import pydirectinput
 
@@ -192,7 +192,7 @@ def _key_up(key: AllKey) -> None:
 #=============================================================================
 # Public functions
 
-def with_modifier_keys(func, modifier=MODIFIER.NONE, /):
+def with_modifier_keys(func: Callable[[], Any], modifier=MODIFIER.NONE, /):
     """
     Call `func` with pressing modifier keys.
     Modifier keys can be specified as a bitmap (use bit-OR to specify multiple modifier keys).

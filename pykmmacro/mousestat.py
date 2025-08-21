@@ -10,6 +10,8 @@ from .windowsapi import PositionInScreen
 # Get mouse cursor position
 
 def get_mouse_position() -> PositionInScreen:
+    x: int
+    y: int
     x, y = pydirectinput.position()
     return PositionInScreen(x, y)
 

@@ -1,7 +1,7 @@
 import itertools
 import random
 import time
-from typing import Final
+from typing import Any, Callable, Final, Generator, Iterable
 
 #=============================================================================
 # Constant
@@ -31,15 +31,15 @@ class MyTimeoutError(MyError):
 def my_fail_always():
     raise MyFailAlwaysError()
 
-def my_assert_eq(l, r, *rest):
+def my_assert_eq(l, r, *rest): # type: ignore
     assert l == r, (l, r, *rest)
 
-def my_unique(seq, *, key_func=lambda x: x):
+def my_unique[S, T](seq: Iterable[S], *, key_func: Callable[[S], T]=lambda x: x) -> Iterable[S]:
     """
     Remove duplicated items in a sequence.
     If `key_func` is specified, the value of `key_func(item)` is used to distinguish an item from another item.
     """
-    is_dedup = set()
+    is_dedup: set[T] = set()
     def generate_result():
         for value in seq:
             key = key_func(value)
@@ -85,7 +85,7 @@ def my_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
 def my_sleep_a_moment():
     my_sleep_with_random(_DELAY_MS_FOR_A_MOMENT, variation_ratio=0.2)
 
-def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
+def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4) -> Generator[None]:
     assert period_ms > 0
     assert 0 <= variation_ratio and variation_ratio < 1.0
     variation = period_ms * variation_ratio # may be zero
@@ -99,16 +99,16 @@ def g_sleep_with_random(period_ms: int, /, *, variation_ratio: float = 0.4):
     if period_at_last > 0:
         time.sleep(period_at_last / 1000) # use `time.sleep()` directly to make leaf period (<=1ms) effective
 
-def g_sleep(period_ms):
+def g_sleep(period_ms: int) -> Generator[None]:
     yield from g_sleep_with_random(period_ms, variation_ratio=0.0)
 
-def g_sleep_a_moment():
+def g_sleep_a_moment() -> Generator[None]:
     yield from g_sleep_with_random(_DELAY_MS_FOR_A_MOMENT, variation_ratio=0.2)
 
-def g_sleep_to_ensure():
+def g_sleep_to_ensure() -> Generator[None]:
     yield from g_sleep_with_random(_DELAY_MS_FOR_ENSURE, variation_ratio=0.2)
 
-def g_with_timeout(timeout_ms: int, func, *args, **kwargs):
+def g_with_timeout(timeout_ms: int, func: Callable[Any, Any], *args, **kwargs) -> Generator[None, Any]: # type: ignore
     # NOTE: `func` should not be a generator.
     assert timeout_ms > 0
     limit = my_get_timestamp_ms() + timeout_ms
@@ -122,10 +122,10 @@ def g_with_timeout(timeout_ms: int, func, *args, **kwargs):
             raise MyTimeoutError(f"{timeout_ms=} / {func.__name__}()")
         yield from g_sleep(_DELAY_MS_FOR_A_TICK)
 
-def g_with_timeout_until(timeout_ms: int, func, *args, **kwargs):
+def g_with_timeout_until(timeout_ms: int, func: Callable[Any, Any], *args, **kwargs): # type: ignore
     yield from g_with_timeout(timeout_ms, lambda: func(*args, **kwargs) or None)
 
-def g_with_timeout_while(timeout_ms: int, func, *args, **kwargs):
+def g_with_timeout_while(timeout_ms: int, func: Callable[Any, Any], *args, **kwargs): # type: ignore
     yield from g_with_timeout_until(timeout_ms, lambda: not func(*args, **kwargs))
 
 #=============================================================================

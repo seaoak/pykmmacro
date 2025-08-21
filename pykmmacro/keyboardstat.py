@@ -41,7 +41,7 @@ for keyname in _MODIFIER_KEY_DICT.keys():
 _BITMASK_FOR_TRUNCATE: Final[int] = 0xffffffff
 
 def setup_keyboard_listener() -> Callable[[ModifierKey], bool]:
-    counter_for_listerner_thread = dict(((keyname, 0) for keyname in _MODIFIER_KEY_DICT.keys()))
+    counter_for_listerner_thread: dict[str, int] = dict(((keyname, 0) for keyname in _MODIFIER_KEY_DICT.keys()))
     counter_for_main_thread = counter_for_listerner_thread.copy()
 
     def is_key_pressed_since_previous_call(key: ModifierKey) -> bool:
@@ -52,13 +52,13 @@ def setup_keyboard_listener() -> Callable[[ModifierKey], bool]:
             counter_for_main_thread[keyname] = count
         return is_updated
 
-    def on_press(keycode):
+    def on_press(keycode: keyboard.Key | keyboard.KeyCode | None) -> None:
         # print(f"on_press: {keycode!r}")
         if keycode in _KEYCODE_TO_KEYNAME:
             keyname = _KEYCODE_TO_KEYNAME[keycode]
             counter_for_listerner_thread[keyname] = (counter_for_listerner_thread[keyname] + 1) & _BITMASK_FOR_TRUNCATE
 
-    def on_release(keycode):
+    def on_release(keycode: keyboard.Key | keyboard.KeyCode | None):
         # print(f"on_release: {keycode!r}")
         return
 
