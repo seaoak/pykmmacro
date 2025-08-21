@@ -2,7 +2,7 @@ import os
 from pathlib import Path, WindowsPath
 import re
 import sys
-from typing import Final
+from typing import Any, Callable, Final, Generator, Iterable, NoReturn
 
 from pykmmacro import *
 
@@ -64,7 +64,7 @@ class Status:
             value = None # default value when no match
             for offset, expected_color, meaning in table:
                 assert not meaning is None
-                if offset is None or expected_color is None:
+                if expected_color is None:
                     value = meaning
                     break
                 color = self.screenshot.get_pixel(offset)
@@ -91,7 +91,7 @@ class Status:
 #=============================================================================
 # Proces a recipe
 
-def g_issue_command(text: str):
+def g_issue_command(text: str) -> Generator[None]:
     print(f"issue_command: {text!r}")
     assert text
     assert text.startswith('/')
@@ -111,7 +111,7 @@ def g_issue_command(text: str):
     yield from g_with_timeout_while(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_in_input_mode())
     copy_to_clipboard(f"{my_random()}") # overwrite clipboard by random text
 
-def g_process_a_recipe(recipe: list[str]):
+def g_process_a_recipe(recipe: list[str]) -> Generator[None]:
     print(f"process a recipe ({len(recipe)} steps)")
     yield from g_sleep_with_random(1000, variation_ratio=0.0)
     key_press(NormalKey.NUM_0)
@@ -142,7 +142,7 @@ def g_process_a_recipe(recipe: list[str]):
     assert Status().is_busy() # because keep sitting
     print("finish a recipe")
 
-def parse_recipe_file(generator_for_lines) -> list[str]:
+def parse_recipe_file(generator_for_lines: Iterable[str]) -> list[str]:
     def generator():
         is_skipping_header_part = True
         for line in generator_for_lines:
@@ -163,11 +163,11 @@ def parse_recipe_file(generator_for_lines) -> list[str]:
             yield line
     return [text for text in generator()] # make a real list to validate all lines in input
 
-def g_process_a_recipe_file(path: Path, num_of_loop: int):
+def g_process_a_recipe_file(path: Path, num_of_loop: int) -> Generator[None]:
     print(f"start processing a recipe file \"{path}\" at {my_get_str_timestamp()}")
     assert num_of_loop > 0
     assert path.suffix == '.MAC'
-    def generator_for_lines():
+    def generator_for_lines() -> Generator[str]:
         with open(path, encoding='shiftjis') as f:
             yield from f
     recipe: list[str] = parse_recipe_file(generator_for_lines())
@@ -192,7 +192,7 @@ def g_process_a_recipe_file(path: Path, num_of_loop: int):
 #=============================================================================
 # Executor
 
-def run(generator, callback_for_each_yield):
+def run(generator: Generator[None], callback_for_each_yield: Callable[[], Any]):
     for _ in generator:
         callback_for_each_yield()
 
@@ -220,11 +220,11 @@ def crate_callback_func():
 
     return callback_func
 
-def usage(_args):
+def usage(_args: Iterable[str]) -> NoReturn:
     print(f"Usage: python -m {__package__} macro-file num-of-loop")
     sys.exit(1)
 
-def g_main():
+def g_main() -> Generator[None]:
     print(f"start ff14_craft at {my_get_str_timestamp()}")
 
     args = sys.argv
@@ -232,7 +232,7 @@ def g_main():
     if len(args) != 3:
         usage(args)
     _, arg_path, arg_num_of_loop = args
-    if not arg_path or not isinstance(arg_path, str) or not arg_num_of_loop or not isinstance(arg_num_of_loop, str):
+    if not arg_path or not arg_num_of_loop:
         usage(args)
     try:
         num_of_loop = int(arg_num_of_loop)
