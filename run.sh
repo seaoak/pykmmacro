@@ -34,4 +34,8 @@ py -VV
 py -m sysconfig
 py -m pip freeze | grep -v -i ' @ file:///' | tee ./requirements.txt
 
+if test $# -ge 1 && test "X$1" == "Xstubgen"; then
+    exec $@
+fi
+
 exec py $*
