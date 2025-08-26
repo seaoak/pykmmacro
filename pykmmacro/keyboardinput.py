@@ -1,6 +1,8 @@
 import atexit
 from collections import namedtuple
 from dataclasses import dataclass
+from enum import Enum
+import sys
 from typing import Any, Callable, Final
 
 import pydirectinput
@@ -131,6 +133,167 @@ _FUNCTION_KEY_DICT: Final[dict[str, str | int]] = dict(((f"F{i}", f"f{i}") for i
 _ALPHABET_KEY_DICT: Final[dict[str, str | int]] = dict(((chr(x), chr(x).lower()) for x in range(ord('A'), ord('Z'))))
 
 _NORMAL_KEY_DICT: Final[dict[str, str | int]] = _OTHER_KEY_DICT | _FUNCTION_KEY_DICT | _ALPHABET_KEY_DICT
+
+@dataclass
+class _BaseKey2ndMixin:
+    # type enfocement for Enum
+    _val: str | int
+
+class AllKey2nd(_BaseKey2ndMixin, Enum):
+    @property
+    def keyname(self) -> str:
+        return self.name
+
+    @property
+    def keycode(self) -> str | int:
+        return self._val
+
+class ModifierKey2nd(AllKey2nd):
+    LSHIFT = 'shiftleft'
+    LCTRL = 'ctrlleft'
+    LALT = 'altleft'
+    LWIN = 'winleft'
+
+    RSHIFT = 'shiftright'
+    RCTRL = 'ctrlright'
+    RALT = 'altright'
+    RWIN = 'winright'
+
+    # aliases
+    SHIFT = 'shiftleft'
+    CTRL = 'ctrlleft'
+    ALT = 'altleft'
+    WIN = 'winleft'
+
+class NormalKey2nd(AllKey2nd):
+    CapsLock = 'capslock'
+    NumLock = 'numlock'
+
+    # special keys
+    ESC = 'esc'
+    PrintScreen = 'printscreen'
+    ScrollLock = 'scrolllock'
+    Pause = 'pause'
+    Backspace = 'backspace'
+    Insert = 'insert'
+    Home = 'home'
+    PageUp = 'pageup'
+    PageDown = 'pagedown'
+    TAB = 'tab'
+    Delete = 'delete'
+    End = 'end'
+    Enter = 'enter'
+    Space = 'space'
+    Application = 'apps'
+    Up = 'up'
+    Left = 'left'
+    Down = 'down'
+    Right = 'right'
+
+    # special keys for Japanese keyboard
+    Zenkaku = '`' # 0x29
+    Henkan = 0x79
+    Muhenkan = 0x7B
+    Hiragana = 0x70
+
+    # symbols
+    Hyphen = '-' # 0x0C
+    Hat = '=' # 0x0D
+    YenSign = 0x7D
+    Atmark = '[' # 0x1A
+    LeftSquareBracket = ']' # 0x1B
+    RightSquareBracket = '\\' # 0x2B
+    Colon = "'" # 0x28
+    Semicolon = ';' # 0x27
+    Comma = ',' # 0x33
+    Period = '.' # 0x34
+    Slash = '/' # 0x35
+    BackSlash = 0x73
+
+    # numbers
+    One =   '1'
+    Two =   '2'
+    Three = '3'
+    Four =  '4'
+    Five =  '5'
+    Six =   '6'
+    Seven = '7'
+    Eight = '8'
+    Nine =  '9'
+    Zero =  '0'
+
+    # numpad (ten-key)
+    NUM_Multiply = 'multiply'
+    NUM_Plus = 'add'
+    NUM_Minus = 'subtract'
+    NUM_Devide = 'devide'
+    NUM_Period = 'decimal'
+    NUM_Enter = 'numpadenter'
+    NUM_1 = 'numpad1'
+    NUM_2 = 'numpad2'
+    NUM_3 = 'numpad3'
+    NUM_4 = 'numpad4'
+    NUM_5 = 'numpad5'
+    NUM_6 = 'numpad6'
+    NUM_7 = 'numpad7'
+    NUM_8 = 'numpad8'
+    NUM_9 = 'numpad9'
+    NUM_0 = 'numpad0'
+
+    # function keys
+    F1 = 'f1'
+    F2 = 'f2'
+    F3 = 'f3'
+    F4 = 'f4'
+    F5 = 'f5'
+    F6 = 'f6'
+    F7 = 'f7'
+    F8 = 'f8'
+    F9 = 'f9'
+    F10 = 'f10'
+    F11 = 'f11'
+
+    # alphabet keys
+    A = 'a'
+    B = 'b'
+    C = 'c'
+    D = 'd'
+    E = 'e'
+    F = 'f'
+    G = 'g'
+    H = 'h'
+    I = 'i'
+    J = 'j'
+    K = 'k'
+    L = 'l'
+    M = 'm'
+    N = 'n'
+    O = 'o'
+    P = 'p'
+    Q = 'q'
+    R = 'r'
+    S = 's'
+    T = 't'
+    U = 'u'
+    V = 'v'
+    W = 'w'
+    X = 'x'
+    Y = 'y'
+    Z = 'z'
+
+def _test_keys():
+    def check_key(k: AllKey2nd):
+        print(f"{k=!r} / {k.name=!r} / {k.value=!r} / {k.keyname=!r} / {k.keycode=!r}")
+
+    print(f"the number of symbols for modifier keys: {len(ModifierKey2nd.__members__)}")
+    print(f"the number of modifier keys: {len(list(ModifierKey2nd))}")
+    print(f"the number of normal keys: {len(list(NormalKey2nd))}")
+    for k in (NormalKey2nd.F8, ModifierKey2nd.LSHIFT, ModifierKey2nd.SHIFT):
+        check_key(k)
+    sys.exit(1)
+
+if False:
+    _test_keys()
 
 @dataclass(frozen=True)
 class AllKey:
