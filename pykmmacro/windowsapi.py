@@ -55,7 +55,7 @@ def _get_window_title(hwnd: int) -> str:
     title = win32gui.GetWindowText(hwnd)
     return title
 
-def _get_all_display_info() -> list[MyMonitorInfo]:
+def _get_all_monitor_info() -> list[MyMonitorInfo]:
     # https://qiita.com/kznSk2/items/1c756eb4bee80c66233d
     # https://mhammond.github.io/pywin32/win32api.html
     monitors = win32api.EnumDisplayMonitors()
@@ -312,7 +312,7 @@ def get_active_window_info() -> MyWindowInfo:
     return info
 
 def get_screen_info():
-    monitors = _get_all_display_info()
+    monitors = _get_all_monitor_info()
     origin_def = {
         "x": -1 * min(monitor.left for monitor in monitors),
         "y": -1 * min(monitor.top for monitor in monitors),
