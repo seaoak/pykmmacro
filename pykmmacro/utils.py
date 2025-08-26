@@ -164,7 +164,7 @@ class MyRect:
         return cls(top=d.top, right=d.right, bottom=d.bottom, left=d.left)
 
     def asdict(self):
-        return dataclasses.asdict(self) | { "width": self.width, "height": self.height }
+        return dataclasses.asdict(self)
 
     def includes(self, pos: MyPosition) -> bool:
         assert self.right - self.left > 0

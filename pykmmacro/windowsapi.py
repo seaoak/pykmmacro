@@ -101,7 +101,7 @@ def _convert_position_in_screen_to_offset_in_screen(pos: PositionInScreen, /, *,
     assert offset_y < screen_info.size.height
     return OffsetInScreen(offset_x, offset_y)
 
-def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos: PositionInScreen, /, *, window_info=None, screen_info=None) -> OffsetInWindow:
+def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos: PositionInScreen, /, *, window_info: MyWindowInfo | None = None, screen_info=None) -> OffsetInWindow:
     """
     Convert `pos` to offset in client region of active window.
     `pos` should be in client region of active window.
@@ -133,7 +133,7 @@ def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen, /, *
     assert is_in_rect((x, y), screen_info.box)
     return PositionInScreen(x, y)
 
-def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offset: OffsetInWindow, /, *, window_info=None, screen_info=None) -> PositionInScreen:
+def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offset: OffsetInWindow, /, *, window_info: MyWindowInfo | None = None, screen_info=None) -> PositionInScreen:
     """
     Convert `offset` to position in screen.
     `offset` should be in client region of active window.
@@ -152,6 +152,34 @@ def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offs
 
 #=============================================================================
 # Public class
+
+@dataclass(frozen=True, kw_only=True)
+class MyPaddingInfo:
+    """
+    Represent paddings of a rectangle
+    """
+
+    top: int
+    right: int
+    bottom: int
+    left: int
+
+    def __post_init__(self):
+        assert self.top >= 0
+        assert self.right >= 0
+        assert self.bottom >= 0
+        assert self.left >= 0
+
+@dataclass(frozen=True, kw_only=True)
+class MyWindowInfo(MyRect):
+    hwnd: int
+    title: str
+    padding: MyPaddingInfo
+    client: MyRect
+
+    def __post_init__(self):
+        super().__post_init__()
+        assert self.hwnd != 0
 
 @dataclass(frozen=True)
 class PositionInScreen:
@@ -175,7 +203,7 @@ class PositionInScreen:
     def to_offset_in_screen(self, /, *, screen_info=None) -> OffsetInScreen:
         return _convert_position_in_screen_to_offset_in_screen(self, screen_info=screen_info)
 
-    def to_offset_in_client_region_of_active_window(self, /, *, window_info=None, screen_info=None) -> OffsetInWindow:
+    def to_offset_in_client_region_of_active_window(self, /, *, window_info: MyWindowInfo | None = None, screen_info=None) -> OffsetInWindow:
         return _convert_position_in_screen_to_offset_in_client_region_of_active_window(self, window_info=window_info, screen_info=screen_info)
 
 @dataclass(frozen=True)
@@ -228,13 +256,13 @@ class OffsetInWindow:
     def move(self, diff_x: int, diff_y: int) -> OffsetInWindow:
         return OffsetInWindow(self.x + diff_x, self.y + diff_y)
 
-    def to_position_in_screen(self, /, *, window_info=None, screen_info=None) -> PositionInScreen:
+    def to_position_in_screen(self, /, *, window_info: MyWindowInfo | None = None, screen_info=None) -> PositionInScreen:
         return _convert_offset_in_client_region_of_active_window_to_position_in_screen(self, window_info=window_info, screen_info=screen_info)
 
 #=============================================================================
 # Public function
 
-def get_active_window_info():
+def get_active_window_info() -> MyWindowInfo:
     """
     Return infomation about active (foreground) window.
     This function is synchronous (blocking) API.
@@ -263,21 +291,20 @@ def get_active_window_info():
         diff_y = window_rect.height - client_rect.height - client_rect.top
         assert diff_y >= padding_width, (diff_y, padding_width, window_rect, client_rect) # padding_top may be zero
 
-    padding_info_def = {
-        "top":    diff_y - padding_width,
-        "right":  padding_width,
-        "bottom": padding_width,
-        "left":   padding_width,
-    }
-    padding_info = namedtuple("PaddingInfo", padding_info_def.keys())(**padding_info_def)
+    padding_info = MyPaddingInfo(
+        top    = diff_y - padding_width,
+        right  =  padding_width,
+        bottom = padding_width,
+        left   = padding_width,
+    )
 
-    info = {
-        "hwnd": hwnd,
-        "title":  title,
-        "padding": padding_info,
-        "client": client_rect,
-    } | window_rect.asdict()
-    info = namedtuple("WindowInfo", info.keys())(**info)
+    info = MyWindowInfo(
+        hwnd = hwnd,
+        title = title,
+        padding = padding_info,
+        client = client_rect,
+        **window_rect.asdict(),
+    )
     #print(f"{info=}")
     return info
 
