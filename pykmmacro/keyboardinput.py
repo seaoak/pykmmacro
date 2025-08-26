@@ -65,10 +65,10 @@ class _ModifierKey(AllKey):
     RWIN = 'winright'
 
     # aliases
-    SHIFT = 'shiftleft'
-    CTRL = 'ctrlleft'
-    ALT = 'altleft'
-    WIN = 'winleft'
+    SHIFT = LSHIFT
+    CTRL = LCTRL
+    ALT = LALT
+    WIN = LWIN
 
 class NormalKey(AllKey):
     CapsLock = 'capslock'
