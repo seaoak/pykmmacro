@@ -262,8 +262,8 @@ def g_main() -> Generator[None]:
     screen_info = get_screen_info()
     print(f"{screen_info=!r}")
     print(f"{window_info!r}")
-    assert is_rect_intersect(window_info, screen_info)
-    assert is_rect_intersect(window_info.client, window_info)
+    assert window_info.is_intersect(screen_info)
+    assert window_info.client.is_intersect(window_info)
     assert not window_info.includes(MyPosition(100, 100))
 
     print("Move mouse cursor to topleft corner")
