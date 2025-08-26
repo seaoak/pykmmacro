@@ -277,13 +277,12 @@ def get_screen_info():
     size = namedtuple("ScreenSize", size_def.keys())(**size_def)
     assert size.width > 0
     assert size.height > 0
-    box_def = {
-        "top":    min(monitor.top for monitor in monitors),
-        "right":  max(monitor.right for monitor in monitors),
-        "bottom": max(monitor.bottom for monitor in monitors),
-        "left":   min(monitor.left for monitor in monitors),
-    }
-    box = namedtuple("ScreenBox", box_def.keys())(**box_def)
+    box = MyRect(
+        top    = min(monitor.top for monitor in monitors),
+        right  = max(monitor.right for monitor in monitors),
+        bottom = max(monitor.bottom for monitor in monitors),
+        left   = min(monitor.left for monitor in monitors),
+    )
     assert box.top <= 0
     assert box.right > 0
     assert box.bottom > 0
