@@ -133,7 +133,13 @@ def g_with_timeout_while(timeout_ms: int, func: Callable[Any, Any], *args, **kwa
 #=============================================================================
 # Geometry
 
-type MyPosition = tuple[int, int]
+@dataclass(frozen=True)
+class MyPosition:
+    x: int
+    y: int
+
+    def as_tuple(self) -> tuple[int, int]:
+        return (self.x, self.y)
 
 @dataclass(frozen=True)
 class MyRect:
@@ -157,7 +163,8 @@ class MyRect:
 
     @property
     def corners(self) -> Iterable[MyPosition]:
-        return itertools.product((self.left, self.right), (self.top, self.bottom))
+        tuples = itertools.product((self.left, self.right), (self.top, self.bottom))
+        return (MyPosition(*t) for t in tuples)
 
     @classmethod
     def from_namedtuple(cls, d: Any) -> Self:
@@ -169,7 +176,7 @@ class MyRect:
     def includes(self, pos: MyPosition) -> bool:
         assert self.right - self.left > 0
         assert self.bottom - self.top > 0
-        x, y = pos
+        x, y = pos.as_tuple()
         return self.left <= x and x < self.right and self.top <= y and y < self.bottom
 
     def is_intersect(self, other: Self) -> bool:
@@ -182,7 +189,7 @@ class MyRect:
                 any((self.includes(pos) for pos in other.corners)))
 
 def is_in_rect(pos: tuple[int, int], rect: Any) -> bool:
-    return MyRect.from_namedtuple(rect).includes(pos)
+    return MyRect.from_namedtuple(rect).includes(MyPosition(*pos))
 
 def is_rect_intersect(rect1: Any, rect2: Any) -> bool:
     return MyRect.from_namedtuple(rect1).is_intersect(MyRect.from_namedtuple(rect2))
