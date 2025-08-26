@@ -55,32 +55,24 @@ def _get_window_title(hwnd: int) -> str:
     title = win32gui.GetWindowText(hwnd)
     return title
 
-def _get_all_display_info():
+def _get_all_display_info() -> list[MyMonitorInfo]:
     # https://qiita.com/kznSk2/items/1c756eb4bee80c66233d
     # https://mhammond.github.io/pywin32/win32api.html
     monitors = win32api.EnumDisplayMonitors()
     #print(f"{monitors=!r}")
-    infos = []
+    infos: list[MyMonitorInfo] = []
     for monitor in monitors:
         hMonitor, _hdcMonitor, _rect = monitor
         info = win32api.GetMonitorInfo(hMonitor.handle)
         #print(f"{info=!r}")
-        table_def = {
-            "top":        info["Monitor"][1],
-            "right":      info["Monitor"][2],
-            "bottom":     info["Monitor"][3],
-            "left":       info["Monitor"][0],
-            "width":      info["Monitor"][2] - info["Monitor"][0],
-            "height":     info["Monitor"][3] - info["Monitor"][1],
-            "is_primary": info["Flags"] == 1,
-            "name":       info["Device"],
-        }
-        table = namedtuple("MonitorInfo", table_def.keys())(**table_def)
-        assert table.top < table.bottom
-        assert table.left < table.right
-        assert table.width > 0
-        assert table.height > 0
-        assert table.name
+        table = MyMonitorInfo(
+            top        = info["Monitor"][1],
+            right      = info["Monitor"][2],
+            bottom     = info["Monitor"][3],
+            left       = info["Monitor"][0],
+            is_primary = info["Flags"] == 1,
+            name       = info["Device"],
+        )
         infos.append(table)
 
     return infos
@@ -152,6 +144,17 @@ def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offs
 
 #=============================================================================
 # Public class
+
+@dataclass(frozen=True, kw_only=True)
+class MyMonitorInfo(MyRect):
+    is_primary: bool
+    name: str
+
+    def __post_init__(self):
+        super().__post_init__()
+        assert self.name
+        assert self.width > 0
+        assert self.height > 0
 
 @dataclass(frozen=True, kw_only=True)
 class MyPaddingInfo:
