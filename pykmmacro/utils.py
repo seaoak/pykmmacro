@@ -138,8 +138,29 @@ class MyPosition:
     x: int
     y: int
 
+    def __post_init__(self):
+        pass
+
     def as_tuple(self) -> tuple[int, int]:
         return (self.x, self.y)
+
+    def __str__(self):
+        return f"{self.__class__.__name__}({self.x}, {self.y})"
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
+
+    def move(self, diff_x: int, diff_y: int) -> Self:
+        # may be assertion error if diff_x or diff_x is negative
+        return type(self)(self.x + diff_x, self.y + diff_y)
+
+@dataclass(frozen=True)
+class MyOffsetInRect(MyPosition):
+    def __post_init__(self):
+        super().__post_init__()
+        assert self.x >= 0
+        assert self.y >= 0
 
 @dataclass(frozen=True)
 class MyRect:

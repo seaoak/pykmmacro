@@ -185,23 +185,10 @@ class MyWindowInfo(MyRect):
         assert self.hwnd != 0
 
 @dataclass(frozen=True)
-class PositionInScreen:
+class PositionInScreen(MyPosition):
     """
     Represent position in screen
     """
-
-    x: int
-    y: int
-
-    def __str__(self):
-        return f"{self.__class__.__name__}({self.x}, {self.y})"
-
-    def __iter__(self):
-        yield self.x
-        yield self.y
-
-    def move(self, diff_x: int, diff_y: int) -> PositionInScreen:
-        return PositionInScreen(self.x + diff_x, self.y + diff_y)
 
     def to_offset_in_screen(self, /, *, screen_info=None) -> OffsetInScreen:
         return _convert_position_in_screen_to_offset_in_screen(self, screen_info=screen_info)
@@ -210,54 +197,20 @@ class PositionInScreen:
         return _convert_position_in_screen_to_offset_in_client_region_of_active_window(self, window_info=window_info, screen_info=screen_info)
 
 @dataclass(frozen=True)
-class OffsetInScreen:
+class OffsetInScreen(MyOffsetInRect):
     """
     Represent offset in screen.
     This can be used for offset in screenshot of whole desktop.
     """
 
-    x: int
-    y: int
-
-    def __post_init__(self):
-        assert self.x >= 0
-        assert self.y >= 0
-
-    def __str__(self):
-        return f"{self.__class__.__name__}({self.x}, {self.y})"
-
-    def __iter__(self):
-        yield self.x
-        yield self.y
-
-    def move(self, diff_x: int, diff_y: int) -> OffsetInScreen:
-        return OffsetInScreen(self.x + diff_x, self.y + diff_y)
-
     def to_position_in_screen(self, /, *, screen_info=None) -> PositionInScreen:
         return _convert_offset_in_screen_to_position_in_screen(self, screen_info=screen_info)
 
 @dataclass(frozen=True)
-class OffsetInWindow:
+class OffsetInWindow(MyOffsetInRect):
     """
     Represent offset in client area of active window
     """
-
-    x: int
-    y: int
-
-    def __post_init__(self):
-        assert self.x >= 0
-        assert self.y >= 0
-
-    def __str__(self):
-        return f"{self.__class__.__name__}({self.x}, {self.y})"
-
-    def __iter__(self):
-        yield self.x
-        yield self.y
-
-    def move(self, diff_x: int, diff_y: int) -> OffsetInWindow:
-        return OffsetInWindow(self.x + diff_x, self.y + diff_y)
 
     def to_position_in_screen(self, /, *, window_info: MyWindowInfo | None = None, screen_info=None) -> PositionInScreen:
         return _convert_offset_in_client_region_of_active_window_to_position_in_screen(self, window_info=window_info, screen_info=screen_info)
