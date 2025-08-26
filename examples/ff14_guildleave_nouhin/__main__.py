@@ -133,7 +133,7 @@ def g_main() -> Generator[None]:
     screen_info = get_screen_info()
     print(f"{screen_info=!r}")
     print(f"{window_info!r}")
-    assert window_info.is_intersect(screen_info)
+    assert window_info.is_intersect(screen_info) # the window should be displayed at least partially
     assert window_info.client.is_intersect(window_info)
     assert not window_info.includes(MyPosition(100, 100))
 
