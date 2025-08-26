@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 import dataclasses
 import itertools
@@ -200,7 +202,7 @@ class MyRect:
         x, y = pos.as_tuple()
         return self.left <= x and x < self.right and self.top <= y and y < self.bottom
 
-    def is_intersect(self, other: Self) -> bool:
+    def is_intersect(self, other: MyRect) -> bool:
         assert self.right - self.left > 0
         assert self.bottom - self.top > 0
         assert other.right - other.left > 0
