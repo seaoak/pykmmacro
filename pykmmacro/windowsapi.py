@@ -266,13 +266,10 @@ def get_active_window_info() -> MyWindowInfo:
 
 def get_screen_info():
     monitors = _get_all_monitor_info()
-    origin_def = {
-        "x": -1 * min(monitor.left for monitor in monitors),
-        "y": -1 * min(monitor.top for monitor in monitors),
-    }
-    origin = namedtuple("ScreenOrigin", origin_def.keys())(**origin_def)
-    assert origin.x >= 0
-    assert origin.y >= 0
+    origin = MyOffsetInRect(
+        x = -1 * min(monitor.left for monitor in monitors),
+        y = -1 * min(monitor.top for monitor in monitors),
+    )
     size_def = {
         "width":  max(monitor.right for monitor in monitors) - min(monitor.left for monitor in monitors),
         "height": max(monitor.bottom for monitor in monitors) - min(monitor.top for monitor in monitors),
