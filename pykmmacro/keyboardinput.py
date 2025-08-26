@@ -148,6 +148,9 @@ class AllKey2nd(_BaseKey2ndMixin, Enum):
     def keycode(self) -> str | int:
         return self._val
 
+    def __hash__(self):
+        return hash((self.__class__, self._val))
+
 class ModifierKey2nd(AllKey2nd):
     LSHIFT = 'shiftleft'
     LCTRL = 'ctrlleft'
@@ -285,6 +288,8 @@ def _test_keys():
     def check_key(k: AllKey2nd):
         print(f"{k=!r} / {k.name=!r} / {k.value=!r} / {k.keyname=!r} / {k.keycode=!r}")
 
+    assert ModifierKey2nd.LSHIFT == ModifierKey2nd.SHIFT
+    assert hash(ModifierKey2nd.LSHIFT) == hash(ModifierKey2nd.SHIFT)
     print(f"the number of symbols for modifier keys: {len(ModifierKey2nd.__members__)}")
     print(f"the number of modifier keys: {len(list(ModifierKey2nd))}")
     print(f"the number of normal keys: {len(list(NormalKey2nd))}")
