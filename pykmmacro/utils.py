@@ -162,7 +162,7 @@ class MyOffsetInRect(MyPosition):
         assert self.x >= 0
         assert self.y >= 0
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MyRect:
     # the order of fields follows CSS (Cascading Style Sheet)
     top: int
