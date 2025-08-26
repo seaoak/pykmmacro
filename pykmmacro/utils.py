@@ -1,7 +1,9 @@
+from dataclasses import dataclass
+import dataclasses
 import itertools
 import random
 import time
-from typing import Any, Callable, Final, Generator, Iterable
+from typing import Any, Callable, Final, Generator, Iterable, Self
 
 #=============================================================================
 # Constant
@@ -131,20 +133,56 @@ def g_with_timeout_while(timeout_ms: int, func: Callable[Any, Any], *args, **kwa
 #=============================================================================
 # Geometry
 
-def is_in_rect(pos: tuple[int, int], rect) -> bool:
-    assert rect.right - rect.left > 0
-    assert rect.bottom - rect.top > 0
-    x, y = pos
-    return rect.left <= x and x < rect.right and rect.top <= y and y < rect.bottom
+type MyPosition = tuple[int, int]
 
-def is_rect_intersect(rect1, rect2) -> bool:
-    assert rect1.right - rect1.left > 0
-    assert rect1.bottom - rect1.top > 0
-    assert rect2.right - rect2.left > 0
-    assert rect2.bottom - rect2.top > 0
+@dataclass(frozen=True)
+class MyRect:
+    # the order of fields follows CSS (Cascading Style Sheet)
+    top: int
+    right: int
+    bottom: int
+    left: int
 
-    def get_four_corners(rect):
-        return itertools.product((rect.left, rect.right), (rect.top, rect.bottom))
+    def __post_init__(self):
+        assert self.top <= self.bottom
+        assert self.left <= self.right
 
-    return (any((is_in_rect(pos, rect2) for pos in get_four_corners(rect1))) or
-            any((is_in_rect(pos, rect1) for pos in get_four_corners(rect2))))
+    @property
+    def width(self):
+        return self.right - self.left # may be zero
+
+    @property
+    def height(self):
+        return self.bottom - self.top # may be zero
+
+    @property
+    def corners(self) -> Iterable[MyPosition]:
+        return itertools.product((self.left, self.right), (self.top, self.bottom))
+
+    @classmethod
+    def from_namedtuple(cls, d: Any) -> Self:
+        return cls(top=d.top, right=d.right, bottom=d.bottom, left=d.left)
+
+    def asdict(self):
+        return dataclasses.asdict(self) | { "width": self.width, "height": self.height }
+
+    def includes(self, pos: MyPosition) -> bool:
+        assert self.right - self.left > 0
+        assert self.bottom - self.top > 0
+        x, y = pos
+        return self.left <= x and x < self.right and self.top <= y and y < self.bottom
+
+    def is_intersect(self, other: Self) -> bool:
+        assert self.right - self.left > 0
+        assert self.bottom - self.top > 0
+        assert other.right - other.left > 0
+        assert other.bottom - other.top > 0
+
+        return (any((other.includes(pos) for pos in self.corners)) or
+                any((self.includes(pos) for pos in other.corners)))
+
+def is_in_rect(pos: tuple[int, int], rect: Any) -> bool:
+    return MyRect.from_namedtuple(rect).includes(pos)
+
+def is_rect_intersect(rect1: Any, rect2: Any) -> bool:
+    return MyRect.from_namedtuple(rect1).is_intersect(MyRect.from_namedtuple(rect2))

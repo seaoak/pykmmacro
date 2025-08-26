@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import namedtuple
-import dataclasses
 from dataclasses import dataclass
 from typing import Final
 
@@ -18,29 +17,6 @@ _TIMEOUT_MS_FOR_WINDOW_SWITCH: Final[int] = 500
 class TimeoutForWindowSwitch(Exception):
     pass
 
-@dataclass(frozen=True)
-class _MyRect:
-    # the order of fields follows CSS (Cascading Style Sheet)
-    top: int
-    right: int
-    bottom: int
-    left: int
-
-    def __post_init__(self):
-        assert self.top <= self.bottom
-        assert self.left <= self.right
-
-    @property
-    def width(self):
-        return self.right - self.left # may be zero
-
-    @property
-    def height(self):
-        return self.bottom - self.top # may be zero
-
-    def asdict(self):
-        return dataclasses.asdict(self) | { "width": self.width, "height": self.height }
-
 #=============================================================================
 # Private function
 
@@ -56,21 +32,21 @@ def _restore_window(hwnd: int):
 def _get_hwnd_of_active_window() -> int:
     return win32gui.GetForegroundWindow() # may be zero
 
-def _get_client_rect(hwnd: int) -> _MyRect:
+def _get_client_rect(hwnd: int) -> MyRect:
     """get client area of active window"""
     # https://mhammond.github.io/pywin32/win32gui__GetClientRect_meth.html
     assert hwnd != 0
     t = win32gui.GetClientRect(hwnd)
     rect = dict(zip(("left", "top", "right", "bottom"), t))
-    return _MyRect(**rect)
+    return MyRect(**rect)
 
-def _get_window_rect(hwnd: int) -> _MyRect:
+def _get_window_rect(hwnd: int) -> MyRect:
     """get the whole area of active window (include MENU and BORDER)"""
     # https://mhammond.github.io/pywin32/win32gui__GetWindowRect_meth.html
     assert hwnd != 0
     t = win32gui.GetWindowRect(hwnd)
     rect = dict(zip(("left", "top", "right", "bottom"), t))
-    return _MyRect(**rect)
+    return MyRect(**rect)
 
 def _get_window_title(hwnd: int) -> str:
     """get the title of active window"""
