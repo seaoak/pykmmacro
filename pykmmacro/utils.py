@@ -149,10 +149,6 @@ class MyPosition:
     def __str__(self):
         return f"{self.__class__.__name__}({self.x}, {self.y})"
 
-    def __iter__(self):
-        yield self.x
-        yield self.y
-
     def move(self, diff_x: int, diff_y: int) -> Self:
         # may be assertion error if diff_x or diff_x is negative
         return type(self)(self.x + diff_x, self.y + diff_y)

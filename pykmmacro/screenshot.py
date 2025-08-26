@@ -53,9 +53,9 @@ class Screenshot:
         assert self.window_info.client.includes(offset), (offset, self.window_info.client, self.window_info)
         if self.is_all_screens:
             offset_in_screen = offset.to_position_in_screen(window_info=self.window_info, screen_info=self.screen_info).to_offset_in_screen(screen_info=self.screen_info)
-            color = self.image.getpixel((*offset_in_screen,))
+            color = self.image.getpixel(offset_in_screen.as_tuple())
         else:
-            color = self.image.getpixel((*offset,))
+            color = self.image.getpixel(offset.as_tuple())
         assert isinstance(color, tuple)
         assert len(color) == 3 # for Windows ("4" for macOS because color is RGBA)
         return Color(*color)
