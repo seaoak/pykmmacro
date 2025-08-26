@@ -101,15 +101,15 @@ def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos:
     if True:
         if screen_info is None:
             screen_info = get_screen_info()
-        assert is_in_rect((*pos,), screen_info)
+        assert screen_info.includes(pos)
 
     if window_info is None:
         window_info = get_active_window_info()
+    assert window_info.includes(pos)
 
-    assert is_in_rect((*pos,), window_info)
     offset_x = pos.x - window_info.left - window_info.padding.left
     offset_y = pos.y - window_info.top - window_info.padding.top
-    assert is_in_rect((offset_x, offset_y), window_info.client)
+    assert window_info.client.includes(MyPosition(offset_x, offset_y))
     return OffsetInWindow(offset_x, offset_y)
 
 def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen, /, *, screen_info: MyScreenInfo | None = None) -> PositionInScreen:
@@ -121,7 +121,7 @@ def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen, /, *
     assert offset.y < screen_info.height
     x = offset.x - screen_info.origin.x
     y = offset.y - screen_info.origin.y
-    assert is_in_rect((x, y), screen_info)
+    assert screen_info.includes(MyPosition(x, y))
     return PositionInScreen(x, y)
 
 def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offset: OffsetInWindow, /, *, window_info: MyWindowInfo | None = None, screen_info: MyScreenInfo | None = None) -> PositionInScreen:
@@ -132,13 +132,13 @@ def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offs
     """
     if window_info is None:
         window_info = get_active_window_info()
-    assert is_in_rect((*offset,), window_info.client)
+    assert window_info.client.includes(offset)
     x = window_info.left + window_info.padding.left + offset.x
     y = window_info.top + window_info.padding.top + offset.y
     if True:
         if screen_info is None:
             screen_info = get_screen_info()
-        assert is_in_rect((x, y), screen_info)
+        assert screen_info.includes(MyPosition(x, y))
     return PositionInScreen(x, y)
 
 #=============================================================================

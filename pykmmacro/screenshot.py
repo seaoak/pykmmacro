@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 from PIL import ImageGrab
 
-from .utils import is_in_rect
 from .windowsapi import *
 
 @dataclass(frozen=True)
@@ -51,7 +50,7 @@ class Screenshot:
             assert self.image.height == self.window_info.client.height, (self.image.height, self.window_info.client.width, self.image, self.window_info)
 
     def get_pixel(self, offset: OffsetInWindow) -> Color:
-        assert is_in_rect((*offset,), self.window_info.client), (offset, self.window_info.client, self.window_info)
+        assert self.window_info.client.includes(offset), (offset, self.window_info.client, self.window_info)
         if self.is_all_screens:
             offset_in_screen = offset.to_position_in_screen(window_info=self.window_info, screen_info=self.screen_info).to_offset_in_screen(screen_info=self.screen_info)
             color = self.image.getpixel((*offset_in_screen,))

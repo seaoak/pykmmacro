@@ -209,8 +209,5 @@ class MyRect:
         return (any((other.includes(pos) for pos in self.corners)) or
                 any((self.includes(pos) for pos in other.corners)))
 
-def is_in_rect(pos: tuple[int, int], rect: Any) -> bool:
-    return MyRect.from_namedtuple(rect).includes(MyPosition(*pos))
-
 def is_rect_intersect(rect1: Any, rect2: Any) -> bool:
     return MyRect.from_namedtuple(rect1).is_intersect(MyRect.from_namedtuple(rect2))

@@ -135,7 +135,7 @@ def g_main() -> Generator[None]:
     print(f"{window_info!r}")
     assert is_rect_intersect(window_info, screen_info)
     assert is_rect_intersect(window_info.client, window_info)
-    assert not is_in_rect((100, 100), window_info)
+    assert not window_info.includes(MyPosition(100, 100))
 
     get_position_of_latest_click: Final = setup_mouse_listener()
 
