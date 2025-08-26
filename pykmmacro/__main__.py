@@ -30,7 +30,7 @@ def main():
 
     if False:
         screen_info = get_screen_info()
-        print(f"{screen_info.size=!r}")
+        print(f"{screen_info=!r}")
         window_info = get_active_window_info()
         print(f"{window_info=!r}")
 

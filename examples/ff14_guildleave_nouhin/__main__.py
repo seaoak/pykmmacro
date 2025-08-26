@@ -133,7 +133,7 @@ def g_main() -> Generator[None]:
     screen_info = get_screen_info()
     print(f"{screen_info=!r}")
     print(f"{window_info!r}")
-    assert is_rect_intersect(window_info, screen_info.box)
+    assert is_rect_intersect(window_info, screen_info)
     assert is_rect_intersect(window_info.client, window_info)
     assert not is_in_rect((100, 100), window_info)
 

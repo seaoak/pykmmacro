@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import namedtuple
 from dataclasses import dataclass
 from typing import Final
 
@@ -77,7 +76,7 @@ def _get_all_monitor_info() -> list[MyMonitorInfo]:
 
     return infos
 
-def _convert_position_in_screen_to_offset_in_screen(pos: PositionInScreen, /, *, screen_info=None) -> OffsetInScreen:
+def _convert_position_in_screen_to_offset_in_screen(pos: PositionInScreen, /, *, screen_info: MyScreenInfo | None = None) -> OffsetInScreen:
     """
     Convert `pos` to offset in screen.
     `pos` should be in client region of active window.
@@ -89,11 +88,11 @@ def _convert_position_in_screen_to_offset_in_screen(pos: PositionInScreen, /, *,
     offset_y = screen_info.origin.y + pos.y
     assert offset_x >= 0
     assert offset_y >= 0
-    assert offset_x < screen_info.size.width
-    assert offset_y < screen_info.size.height
+    assert offset_x < screen_info.width
+    assert offset_y < screen_info.height
     return OffsetInScreen(offset_x, offset_y)
 
-def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos: PositionInScreen, /, *, window_info: MyWindowInfo | None = None, screen_info=None) -> OffsetInWindow:
+def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos: PositionInScreen, /, *, window_info: MyWindowInfo | None = None, screen_info: MyScreenInfo | None = None) -> OffsetInWindow:
     """
     Convert `pos` to offset in client region of active window.
     `pos` should be in client region of active window.
@@ -102,7 +101,7 @@ def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos:
     if True:
         if screen_info is None:
             screen_info = get_screen_info()
-        assert is_in_rect((*pos,), screen_info.box)
+        assert is_in_rect((*pos,), screen_info)
 
     if window_info is None:
         window_info = get_active_window_info()
@@ -113,19 +112,19 @@ def _convert_position_in_screen_to_offset_in_client_region_of_active_window(pos:
     assert is_in_rect((offset_x, offset_y), window_info.client)
     return OffsetInWindow(offset_x, offset_y)
 
-def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen, /, *, screen_info=None) -> PositionInScreen:
+def _convert_offset_in_screen_to_position_in_screen(offset: OffsetInScreen, /, *, screen_info: MyScreenInfo | None = None) -> PositionInScreen:
     if screen_info is None:
         screen_info = get_screen_info()
     assert offset.x >= 0
     assert offset.y >= 0
-    assert offset.x < screen_info.size.width
-    assert offset.y < screen_info.size.height
+    assert offset.x < screen_info.width
+    assert offset.y < screen_info.height
     x = offset.x - screen_info.origin.x
     y = offset.y - screen_info.origin.y
-    assert is_in_rect((x, y), screen_info.box)
+    assert is_in_rect((x, y), screen_info)
     return PositionInScreen(x, y)
 
-def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offset: OffsetInWindow, /, *, window_info: MyWindowInfo | None = None, screen_info=None) -> PositionInScreen:
+def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offset: OffsetInWindow, /, *, window_info: MyWindowInfo | None = None, screen_info: MyScreenInfo | None = None) -> PositionInScreen:
     """
     Convert `offset` to position in screen.
     `offset` should be in client region of active window.
@@ -139,7 +138,7 @@ def _convert_offset_in_client_region_of_active_window_to_position_in_screen(offs
     if True:
         if screen_info is None:
             screen_info = get_screen_info()
-        assert is_in_rect((x, y), screen_info.box)
+        assert is_in_rect((x, y), screen_info)
     return PositionInScreen(x, y)
 
 #=============================================================================
@@ -155,6 +154,15 @@ class MyMonitorInfo(MyRect):
         assert self.name
         assert self.width > 0
         assert self.height > 0
+
+@dataclass(frozen=True, kw_only=True)
+class MyScreenInfo(MyRect):
+    origin: MyOffsetInRect
+    monitors: list[MyMonitorInfo]
+
+    def __post_init__(self):
+        super().__post_init__()
+        assert self.monitors
 
 @dataclass(frozen=True, kw_only=True)
 class MyPaddingInfo:
@@ -190,10 +198,10 @@ class PositionInScreen(MyPosition):
     Represent position in screen
     """
 
-    def to_offset_in_screen(self, /, *, screen_info=None) -> OffsetInScreen:
+    def to_offset_in_screen(self, /, *, screen_info: MyScreenInfo | None = None) -> OffsetInScreen:
         return _convert_position_in_screen_to_offset_in_screen(self, screen_info=screen_info)
 
-    def to_offset_in_client_region_of_active_window(self, /, *, window_info: MyWindowInfo | None = None, screen_info=None) -> OffsetInWindow:
+    def to_offset_in_client_region_of_active_window(self, /, *, window_info: MyWindowInfo | None = None, screen_info: MyScreenInfo | None = None) -> OffsetInWindow:
         return _convert_position_in_screen_to_offset_in_client_region_of_active_window(self, window_info=window_info, screen_info=screen_info)
 
 @dataclass(frozen=True)
@@ -203,7 +211,7 @@ class OffsetInScreen(MyOffsetInRect):
     This can be used for offset in screenshot of whole desktop.
     """
 
-    def to_position_in_screen(self, /, *, screen_info=None) -> PositionInScreen:
+    def to_position_in_screen(self, /, *, screen_info: MyScreenInfo | None = None) -> PositionInScreen:
         return _convert_offset_in_screen_to_position_in_screen(self, screen_info=screen_info)
 
 @dataclass(frozen=True)
@@ -212,7 +220,7 @@ class OffsetInWindow(MyOffsetInRect):
     Represent offset in client area of active window
     """
 
-    def to_position_in_screen(self, /, *, window_info: MyWindowInfo | None = None, screen_info=None) -> PositionInScreen:
+    def to_position_in_screen(self, /, *, window_info: MyWindowInfo | None = None, screen_info: MyScreenInfo | None = None) -> PositionInScreen:
         return _convert_offset_in_client_region_of_active_window_to_position_in_screen(self, window_info=window_info, screen_info=screen_info)
 
 #=============================================================================
@@ -270,30 +278,14 @@ def get_screen_info():
         x = -1 * min(monitor.left for monitor in monitors),
         y = -1 * min(monitor.top for monitor in monitors),
     )
-    size_def = {
-        "width":  max(monitor.right for monitor in monitors) - min(monitor.left for monitor in monitors),
-        "height": max(monitor.bottom for monitor in monitors) - min(monitor.top for monitor in monitors),
-    }
-    size = namedtuple("ScreenSize", size_def.keys())(**size_def)
-    assert size.width > 0
-    assert size.height > 0
-    box = MyRect(
+    result = MyScreenInfo(
         top    = min(monitor.top for monitor in monitors),
         right  = max(monitor.right for monitor in monitors),
         bottom = max(monitor.bottom for monitor in monitors),
         left   = min(monitor.left for monitor in monitors),
+        origin = origin,
+        monitors = monitors,
     )
-    assert box.top <= 0
-    assert box.right > 0
-    assert box.bottom > 0
-    assert box.left <= 0
-    result_def = {
-        "origin":   origin,
-        "size":     size,
-        "box":      box,
-        "monitors": monitors,
-    }
-    result = namedtuple("ScreenInfo", result_def.keys())(**result_def)
     #print(result)
     return result
 

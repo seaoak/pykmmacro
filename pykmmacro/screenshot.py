@@ -39,8 +39,8 @@ class Screenshot:
             # screenshot of all screens is affected by "monitor fading" of DisplayFusion
             # (screnshot of specified window is not affected)
             self.image = ImageGrab.grab(all_screens=True)
-            assert self.image.width == self.screen_info.size.width, (self.image.width, self.screen_info.size.width, self.image, self.screen_info)
-            assert self.image.height == self.screen_info.size.height, (self.image.height, self.screen_info.size.height, self.image, self.screen_info)
+            assert self.image.width == self.screen_info.width, (self.image.width, self.screen_info.width, self.image, self.screen_info)
+            assert self.image.height == self.screen_info.height, (self.image.height, self.screen_info.height, self.image, self.screen_info)
         else:
             assert self.window_info.client.width > 0
             assert self.window_info.client.height > 0
