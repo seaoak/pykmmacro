@@ -135,11 +135,11 @@ _ALPHABET_KEY_DICT: Final[dict[str, str | int]] = dict(((chr(x), chr(x).lower())
 _NORMAL_KEY_DICT: Final[dict[str, str | int]] = _OTHER_KEY_DICT | _FUNCTION_KEY_DICT | _ALPHABET_KEY_DICT
 
 @dataclass
-class _BaseKey2ndMixin:
+class _BaseKeyMixin:
     # type enfocement for Enum
     _val: str | int
 
-class AllKey2nd(_BaseKey2ndMixin, Enum):
+class AllKey(_BaseKeyMixin, Enum):
     @property
     def keyname(self) -> str:
         return self.name
@@ -151,7 +151,7 @@ class AllKey2nd(_BaseKey2ndMixin, Enum):
     def __hash__(self):
         return hash((self.__class__, self._val))
 
-class ModifierKey2nd(AllKey2nd):
+class _ModifierKey(AllKey):
     LSHIFT = 'shiftleft'
     LCTRL = 'ctrlleft'
     LALT = 'altleft'
@@ -168,7 +168,7 @@ class ModifierKey2nd(AllKey2nd):
     ALT = 'altleft'
     WIN = 'winleft'
 
-class NormalKey2nd(AllKey2nd):
+class NormalKey(AllKey):
     CapsLock = 'capslock'
     NumLock = 'numlock'
 
@@ -285,38 +285,20 @@ class NormalKey2nd(AllKey2nd):
     Z = 'z'
 
 def _test_keys():
-    def check_key(k: AllKey2nd):
+    def check_key(k: AllKey):
         print(f"{k=!r} / {k.name=!r} / {k.value=!r} / {k.keyname=!r} / {k.keycode=!r}")
 
-    assert ModifierKey2nd.LSHIFT == ModifierKey2nd.SHIFT
-    assert hash(ModifierKey2nd.LSHIFT) == hash(ModifierKey2nd.SHIFT)
-    print(f"the number of symbols for modifier keys: {len(ModifierKey2nd.__members__)}")
-    print(f"the number of modifier keys: {len(list(ModifierKey2nd))}")
-    print(f"the number of normal keys: {len(list(NormalKey2nd))}")
-    for k in (NormalKey2nd.F8, ModifierKey2nd.LSHIFT, ModifierKey2nd.SHIFT):
+    assert _ModifierKey.LSHIFT == _ModifierKey.SHIFT
+    assert hash(_ModifierKey.LSHIFT) == hash(_ModifierKey.SHIFT)
+    print(f"the number of symbols for modifier keys: {len(_ModifierKey.__members__)}")
+    print(f"the number of modifier keys: {len(list(_ModifierKey))}")
+    print(f"the number of normal keys: {len(list(NormalKey))}")
+    for k in (NormalKey.F8, _ModifierKey.LSHIFT, _ModifierKey.SHIFT):
         check_key(k)
     sys.exit(1)
 
 if False:
     _test_keys()
-
-@dataclass(frozen=True)
-class AllKey:
-    name: str
-    keycode: str | int
-
-class NormalKey(AllKey):
-    pass
-
-class _ModifierKey(AllKey):
-    pass
-
-for name, keycode in _NORMAL_KEY_DICT.items():
-    setattr(NormalKey, name, NormalKey(name, keycode))
-
-for name, keycode in _MODIFIER_KEY_DICT.items():
-    bitmap = _MODIFIER_DICT[name]
-    setattr(_ModifierKey, name, _ModifierKey(name, keycode))
 
 #=============================================================================
 # Shared variables
@@ -341,7 +323,7 @@ def _cleanup() -> None:
 
 def _key_down(key: AllKey) -> None:
     global _is_handler_at_exit_already_registered
-    # print(f"keyDown: {key.name}")
+    # print(f"keyDown: {key.keyname}")
     if not _is_handler_at_exit_already_registered:
         _is_handler_at_exit_already_registered = True
         atexit.register(_handler_at_exit)
@@ -351,7 +333,7 @@ def _key_down(key: AllKey) -> None:
     pydirectinput.keyDown(key.keycode)
 
 def _key_up(key: AllKey) -> None:
-    # print(f"keyUp: {key.name}")
+    # print(f"keyUp: {key.keyname}")
     assert key.keycode in pydirectinput.KEYBOARD_MAPPING
     assert key in _pending_keys
     pydirectinput.keyUp(key.keycode)
@@ -370,7 +352,7 @@ def with_modifier_keys(func: Callable[[], Any], modifier=MODIFIER.NONE, /):
         bitmap = 0
         for name in selected_keys:
             bitmap |= _MODIFIER_DICT[name]
-            _key_down(getattr(_ModifierKey, name))
+            _key_down(_ModifierKey[name])
             my_sleep_a_moment()
         assert 0 == modifier & ~bitmap # ensure that undefined bit are not set
         func()
@@ -398,7 +380,7 @@ def key_press(key: NormalKey | None, modifier=MODIFIER.NONE, /) -> None:
         if modifier != 0:
             selected_keys = (name for name, bitmap in _MODIFIER_DICT.items() if modifier & bitmap and not name.startswith(('L', 'R')))
             prefix = ' + '.join(selected_keys) + ' + '
-        keyname = key.name if key else "NOKEY"
+        keyname = key.keyname if key else "NOKEY"
         print(f"key_press: {prefix}{keyname}")
 
     with_modifier_keys(f, modifier)
