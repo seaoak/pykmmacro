@@ -263,7 +263,6 @@ def g_main() -> Generator[None]:
     print(f"{screen_info=!r}")
     print(f"{window_info!r}")
     assert window_info.is_intersect(screen_info) # the window should be displayed at least partially
-    assert window_info.client.is_intersect(window_info)
     assert not window_info.includes(MyPosition(100, 100))
 
     print("Move mouse cursor to topleft corner")

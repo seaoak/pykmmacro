@@ -244,6 +244,11 @@ def get_active_window_info() -> MyWindowInfo:
     window_rect = _get_window_rect(hwnd)
     title = _get_window_title(hwnd)
 
+    assert client_rect.top >= 0
+    assert client_rect.left >= 0
+    assert client_rect.width <= window_rect.width
+    assert client_rect.height <= window_rect.height
+
     if client_rect.width == 0 or client_rect.height == 0:
         padding_width = 0
         diff_y = 0
