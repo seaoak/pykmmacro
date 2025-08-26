@@ -210,3 +210,8 @@ class MyRect:
 
         return (any((other.includes(pos) for pos in self.corners)) or
                 any((self.includes(pos) for pos in other.corners)))
+
+    def contains_completely(self, other: MyRect) -> bool:
+        assert self.width > 0
+        assert self.height > 0
+        return all(self.includes(pos) for pos in other.corners)
