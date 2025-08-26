@@ -225,10 +225,12 @@ def key_press(key: NormalKey | None, modifier=MODIFIER.NONE, /) -> None:
         my_sleep_with_random(6, variation_ratio=2/6) # use specific period instead of `my_sleep_a_moment()` because max 9ms wait cause key repeat
         _key_up(key)
 
-    prefix = ''
-    if modifier != 0:
-        selected_keys = (name for name, bitmap in _MODIFIER_DICT.items() if modifier & bitmap and not name.startswith(('L', 'R')))
-        prefix = ' + '.join(selected_keys) + ' + '
-    # print(f"key_press: {prefix}{key.name}")
+    if False:
+        prefix = ''
+        if modifier != 0:
+            selected_keys = (name for name, bitmap in _MODIFIER_DICT.items() if modifier & bitmap and not name.startswith(('L', 'R')))
+            prefix = ' + '.join(selected_keys) + ' + '
+        keyname = key.name if key else "NOKEY"
+        print(f"key_press: {prefix}{keyname}")
 
     with_modifier_keys(f, modifier)
