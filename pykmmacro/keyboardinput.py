@@ -157,6 +157,7 @@ class NormalKey(AllKey):
     F9 = 'f9'
     F10 = 'f10'
     F11 = 'f11'
+    F12 = 'f12'
 
     # alphabet keys
     A = 'a'
