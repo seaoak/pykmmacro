@@ -46,7 +46,7 @@ _TABLE_OF_PIXEL_COLOR: Final[dict[str, list[tuple[OffsetInWindow, Color | None, 
         (OffsetInWindow(2581, 2167).move(*_DIFFERENCE_FROM_KMMACRO),    Color.from_int(0xFFFFE2), True),
         (OffsetInWindow(2581, 2167).move(*_DIFFERENCE_FROM_KMMACRO),    Color.from_int(0x7F7F71), False),
     ],
-    'is_bright_recepi_icon_slot3_hotbar1': [
+    'is_bright_recipe_icon_slot3_hotbar1': [
         (OffsetInWindow(2330, 2181).move(*_DIFFERENCE_FROM_KMMACRO),    Color.from_int(0x656765), True),
         (OffsetInWindow(2330, 2181).move(*_DIFFERENCE_FROM_KMMACRO),    Color.from_int(0x3B3C3B), False),
     ],
@@ -87,7 +87,7 @@ class Status:
         return not self._flags['is_bright_dig_icon_slot8_hotbar1']
 
     def is_in_craft_mode(self) -> bool:
-        return not self._flags['is_bright_recepi_icon_slot3_hotbar1']
+        return not self._flags['is_bright_recipe_icon_slot3_hotbar1']
 
     def is_in_input_mode(self) -> bool:
         return not self._flags['is_visible_ime_icon']
