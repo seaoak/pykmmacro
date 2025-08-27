@@ -1,3 +1,4 @@
+ # type: ignore
 from .clipboard import copy_to_clipboard
 from .keyboardinput import key_press, NormalKey
 from .keyboardstat import setup_keyboard_listener
