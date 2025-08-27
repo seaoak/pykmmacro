@@ -99,7 +99,7 @@ def main():
         my_sleep_a_moment()
         offset = get_mouse_position().to_offset_in_client_region_of_active_window()
         print(f"{offset=!r}")
-        button = MOUSE_BUTTON.LEFT
+        button = MouseButton.LEFT
         print(f"mouse_click: {button}")
         mouse_click(button)
 

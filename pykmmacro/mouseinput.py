@@ -1,5 +1,6 @@
-from collections import namedtuple
 from dataclasses import dataclass
+import enum
+import sys
 from typing import Final
 
 import pydirectinput
@@ -12,23 +13,40 @@ from .windowsapi import *
 #=============================================================================
 # Constant
 
-@dataclass(frozen=True)
-class _MouseButton:
-    name: str
-    code: str
+@dataclass
+class _BaseMouseButtonMixin:
+    # type enfocement for Enum
+    _val: str
 
-_MOUSE_BUTTON_DICT: Final[dict[str, str]] = {
-    'LEFT': 'left',
-    'RIGHT': 'right',
-    'MIDDLE': 'middle',
-}
+    # make Enum hashable
+    def __hash__(self):
+        return hash((self.__class__, self._val))
 
-MOUSE_BUTTON: Final = namedtuple("MouseButton", _MOUSE_BUTTON_DICT.keys())(**dict(((name, _MouseButton(name, value)) for name, value in _MOUSE_BUTTON_DICT.items())))
+@enum.unique
+class MouseButton(_BaseMouseButtonMixin, enum.Enum):
+    LEFT = 'left'
+    RIGHT = 'right'
+    MIDDLE = 'middle'
+
+    @property
+    def code(self) -> str:
+        s = self._val
+        assert s
+        return s
+
+def _test_mouse_button_def():
+    assert MouseButton.MIDDLE.name == 'MIDDLE'
+    assert hash(MouseButton.MIDDLE) != hash(MouseButton.RIGHT)
+    print(f"OK: {_test_mouse_button_def.__name__}()")
+    sys.exit(1)
+
+if False:
+    _test_mouse_button_def()
 
 #=============================================================================
 # Private function
 
-_pending_buttons: Final[set[_MouseButton]] = set()
+_pending_buttons: Final[set[MouseButton]] = set()
 
 def _cleanup():
     if _pending_buttons:
@@ -37,14 +55,14 @@ def _cleanup():
             _mouse_up(button)
         assert not _pending_buttons
 
-def _mouse_down(button: _MouseButton):
+def _mouse_down(button: MouseButton):
     print(f"MouseDown: {button.name}")
     assert button not in _pending_buttons
     _pending_buttons.add(button)
     assert isinstance(button.code, str)
     pydirectinput.mouseDown(button=button.code)
 
-def _mouse_up(button: _MouseButton):
+def _mouse_up(button: MouseButton):
     print(f"MouseUp: {button.name}")
     assert button in _pending_buttons
     assert isinstance(button.code, str)
@@ -54,7 +72,7 @@ def _mouse_up(button: _MouseButton):
 #=============================================================================
 # Public function
 
-def mouse_click(button: _MouseButton = MOUSE_BUTTON.LEFT, modifiers: MyModifier = MyModifier.NONE, /):
+def mouse_click(button: MouseButton = MouseButton.LEFT, modifiers: MyModifier = MyModifier.NONE, /):
     """
     Press mouse button.
     Modifier keys can be specified as a bitmap (use bit-OR to specify multiple modifier keys).
