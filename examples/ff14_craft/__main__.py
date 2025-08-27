@@ -57,9 +57,13 @@ _TABLE_OF_PIXEL_COLOR: Final[dict[str, list[tuple[OffsetInWindow, Color | None, 
 }
 
 class Status:
+    _screenshot: Screenshot
+    _flags: dict[str, bool]
+
     def __init__(self):
-        self.screenshot = Screenshot()
-        check_window_title(self.screenshot.window_info)
+        self._screenshot = Screenshot()
+        self._flags = dict()
+        check_window_title(self._screenshot.window_info)
         for label, table in _TABLE_OF_PIXEL_COLOR.items():
             value = None # default value when no match
             for offset, expected_color, meaning in table:
@@ -67,26 +71,26 @@ class Status:
                 if expected_color is None:
                     value = meaning
                     break
-                color = self.screenshot.get_pixel(offset)
+                color = self._screenshot.get_pixel(offset)
                 if color == expected_color:
                     value = meaning
                     break
             if value is None:
                 raise MyPixelNotFoundError(label)
-            setattr(self, label, value)
+            self._flags[label] = value
 
     def __repr__(self):
         fields = ", ".join((f"{label}={getattr(self, label)}" for label in self.__dict__.keys() if label.startswith("is_")))
         return f"{self.__class__.__name__}({fields})"
 
     def is_busy(self) -> bool:
-        return not self.is_bright_dig_icon_slot8_hotbar1
+        return not self._flags['is_bright_dig_icon_slot8_hotbar1']
 
     def is_in_craft_mode(self) -> bool:
-        return not self.is_bright_recepi_icon_slot3_hotbar1
+        return not self._flags['is_bright_recepi_icon_slot3_hotbar1']
 
     def is_in_input_mode(self) -> bool:
-        return not self.is_visible_ime_icon
+        return not self._flags['is_visible_ime_icon']
 
 #=============================================================================
 # Proces a recipe
