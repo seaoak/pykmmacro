@@ -50,7 +50,7 @@ _pending_buttons: Final[set[MouseButton]] = set()
 
 def _cleanup():
     if _pending_buttons:
-        buttons = [button for button in _pending_buttons] # shallow copy because `_pending_buttons` is modified in iteration
+        buttons = _pending_buttons.copy() # shallow copy because `_pending_buttons` is modified in iteration
         for button in buttons:
             _mouse_up(button)
         assert not _pending_buttons
