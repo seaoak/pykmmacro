@@ -1,5 +1,4 @@
 import atexit
-from collections import namedtuple
 from dataclasses import dataclass
 from enum import Enum
 import sys
@@ -7,6 +6,7 @@ from typing import Any, Callable, Final
 
 import pydirectinput
 
+from .modifier import MyModifier
 from .utils import *
 
 # for key name, refer to pydirectinput repository in GitHub
@@ -14,27 +14,6 @@ from .utils import *
 
 #=============================================================================
 # Key mapping (for Japanese keyboard)
-
-_MODIFIER_DICT: Final[dict[str, int]] = {
-    'NONE':   (0x00),
-
-    'SHIFT':  (0x01 << 0),
-    'CTRL':   (0x01 << 1),
-    'ALT':    (0x01 << 2),
-    'WIN':    (0x01 << 3),
-
-    'RSHIFT': (0x01 << 4),
-    'RCTRL':  (0x01 << 5),
-    'RALT':   (0x01 << 6),
-    'RWIN':   (0x01 << 7),
-
-    'LSHIFT': (0x01 << 0),
-    'LCTRL':  (0x01 << 1),
-    'LALT':   (0x01 << 2),
-    'LWIN':   (0x01 << 3),
-}
-
-MyModifier: Final = namedtuple('Modifier', _MODIFIER_DICT.keys())(**_MODIFIER_DICT)
 
 @dataclass
 class _BaseKeyMixin:
@@ -245,19 +224,16 @@ def _key_up(key: AllKey) -> None:
 #=============================================================================
 # Public functions
 
-def with_modifier_keys(func: Callable[[], Any], modifier=MyModifier.NONE, /):
+def with_modifier_keys(func: Callable[[], Any], modifiers: MyModifier = MyModifier.NONE, /):
     """
     Call `func` with pressing modifier keys.
     Modifier keys can be specified as a bitmap (use bit-OR to specify multiple modifier keys).
+    No modifier key may be specified.
     """
     try:
-        selected_keys = (name for name, bitmap in _MODIFIER_DICT.items() if modifier & bitmap and name.startswith(('L', 'R')))
-        bitmap = 0
-        for name in selected_keys:
-            bitmap |= _MODIFIER_DICT[name]
-            _key_down(_ModifierKey[name])
+        for modifier in modifiers:
+            _key_down(_ModifierKey[modifier.keyname])
             my_sleep_a_moment()
-        assert 0 == modifier & ~bitmap # ensure that undefined bit are not set
         func()
     finally:
         if _pending_keys:
@@ -265,7 +241,7 @@ def with_modifier_keys(func: Callable[[], Any], modifier=MyModifier.NONE, /):
             _cleanup()
             my_sleep_a_moment()
 
-def key_press(key: NormalKey | None, modifier=MyModifier.NONE, /) -> None:
+def key_press(key: NormalKey | None, modifiers: MyModifier = MyModifier.NONE, /) -> None:
     """
     Press key with modifier keys.
     Modifier keys can be specified as a bitmap (use bit-OR to specify multiple modifier keys).
@@ -279,11 +255,8 @@ def key_press(key: NormalKey | None, modifier=MyModifier.NONE, /) -> None:
         _key_up(key)
 
     if False:
-        prefix = ''
-        if modifier != 0:
-            selected_keys = (name for name, bitmap in _MODIFIER_DICT.items() if modifier & bitmap and not name.startswith(('L', 'R')))
-            prefix = ' + '.join(selected_keys) + ' + '
+        prefix = "".join(f"{modifier.keyname} + " for modifier in modifiers)
         keyname = key.keyname if key else "NOKEY"
         print(f"key_press: {prefix}{keyname}")
 
-    with_modifier_keys(f, modifier)
+    with_modifier_keys(f, modifiers)

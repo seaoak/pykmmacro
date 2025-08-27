@@ -200,7 +200,7 @@ def run(generator: Generator[None], callback_for_each_yield: Callable[[], Any]):
 # Main
 
 def crate_callback_func():
-    key_for_abort = ModifierKey.LSHIFT
+    key_for_abort = MyModifier.LSHIFT
     is_key_pressed_since_previous_call = setup_keyboard_listener()
     is_key_pressed_since_previous_call(key_for_abort) # call once in advance to clear status
 

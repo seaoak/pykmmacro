@@ -1,6 +1,7 @@
 from .clipboard import copy_to_clipboard
-from .keyboardinput import key_press, MyModifier, NormalKey
-from .keyboardstat import ModifierKey, setup_keyboard_listener
+from .keyboardinput import key_press, NormalKey
+from .keyboardstat import setup_keyboard_listener
+from .modifier import MyModifier
 from .mouseinput import MOUSE_BUTTON, mouse_click, mouse_move_relative, mouse_move_to
 from .mousestat import get_mouse_position, setup_mouse_listener
 from .screenshot import Color, Screenshot

@@ -4,7 +4,8 @@ from typing import Final
 
 import pydirectinput
 
-from .keyboardinput import MyModifier, with_modifier_keys
+from .keyboardinput import with_modifier_keys
+from .modifier import MyModifier
 from .utils import *
 from .windowsapi import *
 
@@ -53,7 +54,7 @@ def _mouse_up(button: _MouseButton):
 #=============================================================================
 # Public function
 
-def mouse_click(button: _MouseButton = MOUSE_BUTTON.LEFT, modifier=MyModifier.NONE, /):
+def mouse_click(button: _MouseButton = MOUSE_BUTTON.LEFT, modifiers: MyModifier = MyModifier.NONE, /):
     """
     Press mouse button.
     Modifier keys can be specified as a bitmap (use bit-OR to specify multiple modifier keys).
@@ -66,7 +67,7 @@ def mouse_click(button: _MouseButton = MOUSE_BUTTON.LEFT, modifier=MyModifier.NO
             _cleanup()
             my_sleep_a_moment()
 
-    with_modifier_keys(helper, modifier)
+    with_modifier_keys(helper, modifiers)
 
 def mouse_move_relative(diff_x: int, diff_y: int):
     """

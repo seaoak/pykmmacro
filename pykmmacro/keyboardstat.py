@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 from typing import Callable, Final
 
 from pynput import keyboard
 
-from .keyboardinput import MyModifier
+from .modifier import MyModifier
 from .utils import *
 
 #=============================================================================
@@ -26,12 +25,14 @@ _MODIFIER_KEY_DICT: Final[dict[str, keyboard.Key]] = {
 
 _KEYCODE_TO_KEYNAME: Final[dict[keyboard.Key, str]] = dict(((keycode, keyname) for keyname, keycode in _MODIFIER_KEY_DICT.items()))
 
-@dataclass(frozen=True)
-class ModifierKey:
-    keyname: str
+def _validate_dict():
+    for modifier in MyModifier: # not include aliases (such as "SHIFT")
+        assert modifier.keyname in _MODIFIER_KEY_DICT
+    for keyname in _MODIFIER_KEY_DICT:
+        assert MyModifier[keyname] # may raise 'KeyError' exception
 
-for keyname in _MODIFIER_KEY_DICT.keys():
-    setattr(ModifierKey, keyname, ModifierKey(keyname))
+if True:
+    _validate_dict()
 
 #=============================================================================
 # Public function
@@ -39,12 +40,18 @@ for keyname in _MODIFIER_KEY_DICT.keys():
 # truncate bits because Integer type has unlimited precision
 _BITMASK_FOR_TRUNCATE: Final[int] = 0xffffffff
 
-def setup_keyboard_listener() -> Callable[[ModifierKey], bool]:
+def setup_keyboard_listener() -> Callable[[MyModifier], bool]:
     counter_for_listerner_thread: dict[str, int] = dict(((keyname, 0) for keyname in _MODIFIER_KEY_DICT.keys()))
     counter_for_main_thread = counter_for_listerner_thread.copy()
 
-    def is_key_pressed_since_previous_call(key: ModifierKey) -> bool:
-        keyname = key.keyname
+    def is_modifier_keys_pressed_since_previous_call(modifiers: MyModifier) -> bool:
+        """Return True if at least one of specified modifiers are pressed"""
+        assert modifiers # at least one modifier should be specified
+        return any(is_key_pressed_since_previous_call(key) for key in modifiers)
+
+    def is_key_pressed_since_previous_call(modifier: MyModifier) -> bool:
+        assert 1 == len(modifier)
+        keyname = modifier.keyname
         count = counter_for_listerner_thread[keyname] # capture the value at this timing
         is_updated = count != counter_for_main_thread[keyname]
         if is_updated:
@@ -67,4 +74,4 @@ def setup_keyboard_listener() -> Callable[[ModifierKey], bool]:
 
     listener.start() # start new listener theread
 
-    return is_key_pressed_since_previous_call
+    return is_modifier_keys_pressed_since_previous_call

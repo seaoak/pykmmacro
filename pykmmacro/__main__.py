@@ -14,7 +14,7 @@ def main():
         print("finish")
 
     if False:
-        target_key = ModifierKey.LSHIFT
+        target_key = MyModifier.LSHIFT
         print("setup keyboard listener")
         is_pressed = setup_keyboard_listener()
         print(f"waiting for {target_key.keyname} key")
