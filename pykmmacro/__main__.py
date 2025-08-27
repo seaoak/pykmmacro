@@ -78,10 +78,10 @@ def main():
         key_press(NormalKey.NUM_Multiply)
 
         print("press '1' with SHIFT key")
-        key_press(NormalKey.One, MODIFIER.SHIFT)
+        key_press(NormalKey.One, MyModifier.SHIFT)
 
         print("press Ctrl+Shift+O")
-        key_press(NormalKey.O, MODIFIER.CTRL | MODIFIER.SHIFT)
+        key_press(NormalKey.O, MyModifier.CTRL | MyModifier.SHIFT)
 
     if get_active_window_info().title == "FINAL FANTASY XIV":
         pos = get_mouse_position()

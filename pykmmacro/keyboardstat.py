@@ -3,7 +3,7 @@ from typing import Callable, Final
 
 from pynput import keyboard
 
-from .keyboardinput import MODIFIER
+from .keyboardinput import MyModifier
 from .utils import *
 
 #=============================================================================

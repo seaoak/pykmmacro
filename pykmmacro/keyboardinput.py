@@ -34,7 +34,7 @@ _MODIFIER_DICT: Final[dict[str, int]] = {
     'LWIN':   (0x01 << 3),
 }
 
-MODIFIER: Final = namedtuple('Modifier', _MODIFIER_DICT.keys())(**_MODIFIER_DICT)
+MyModifier: Final = namedtuple('Modifier', _MODIFIER_DICT.keys())(**_MODIFIER_DICT)
 
 @dataclass
 class _BaseKeyMixin:
@@ -245,7 +245,7 @@ def _key_up(key: AllKey) -> None:
 #=============================================================================
 # Public functions
 
-def with_modifier_keys(func: Callable[[], Any], modifier=MODIFIER.NONE, /):
+def with_modifier_keys(func: Callable[[], Any], modifier=MyModifier.NONE, /):
     """
     Call `func` with pressing modifier keys.
     Modifier keys can be specified as a bitmap (use bit-OR to specify multiple modifier keys).
@@ -265,7 +265,7 @@ def with_modifier_keys(func: Callable[[], Any], modifier=MODIFIER.NONE, /):
             _cleanup()
             my_sleep_a_moment()
 
-def key_press(key: NormalKey | None, modifier=MODIFIER.NONE, /) -> None:
+def key_press(key: NormalKey | None, modifier=MyModifier.NONE, /) -> None:
     """
     Press key with modifier keys.
     Modifier keys can be specified as a bitmap (use bit-OR to specify multiple modifier keys).

@@ -104,7 +104,7 @@ def g_issue_command(text: str) -> Generator[None]:
     key_press(NormalKey.Slash)
     yield from g_with_timeout_until(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_in_input_mode())
     yield from g_sleep_a_moment()
-    key_press(NormalKey.V, MODIFIER.CTRL)
+    key_press(NormalKey.V, MyModifier.CTRL)
     yield from g_sleep_a_moment()
     key_press(NormalKey.Enter)
     yield from g_with_timeout_until(_TIMEOUT_MS_FOR_GENERAL, lambda: Status().is_busy())
@@ -172,7 +172,7 @@ def g_process_a_recipe_file(path: Path, num_of_loop: int) -> Generator[None]:
             yield from f
     recipe: list[str] = parse_recipe_file(generator_for_lines())
 
-    key_press(NormalKey.Three, MODIFIER.CTRL) # open craft menu
+    key_press(NormalKey.Three, MyModifier.CTRL) # open craft menu
     yield from g_sleep(1*1000)
     yield from g_sleep_a_moment()
     key_press(NormalKey.NUM_0) # just in case (redundant NUM_0 key has no effect)
