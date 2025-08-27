@@ -11,25 +11,21 @@ from .utils import *
 # Refer to the `pynput` repository on GitHub
 # https://github.com/moses-palmer/pynput/blob/master/lib/pynput/keyboard/_win32.py
 
-_MODIFIER_KEY_DICT: Final[dict[str, keyboard.Key]] = {
-    'LSHIFT': keyboard.Key.shift_l,
-    'LCTRL': keyboard.Key.ctrl_l,
-    'LALT': keyboard.Key.alt_l,
-    'LWIN': keyboard.Key.cmd_l,
+_MODIFIER_KEY_DICT: Final[dict[MyModifier, keyboard.Key]] = {
+    MyModifier.LSHIFT: keyboard.Key.shift_l,
+    MyModifier.LCTRL: keyboard.Key.ctrl_l,
+    MyModifier.LALT: keyboard.Key.alt_l,
+    MyModifier.LWIN: keyboard.Key.cmd_l,
 
-    'RSHIFT': keyboard.Key.shift_r,
-    'RCTRL': keyboard.Key.ctrl_r,
-    'RALT': keyboard.Key.alt_r,
-    'RWIN': keyboard.Key.cmd_r,
+    MyModifier.RSHIFT: keyboard.Key.shift_r,
+    MyModifier.RCTRL: keyboard.Key.ctrl_r,
+    MyModifier.RALT: keyboard.Key.alt_r,
+    MyModifier.RWIN: keyboard.Key.cmd_r,
 }
-
-_KEYCODE_TO_KEYNAME: Final[dict[keyboard.Key, str]] = dict(((keycode, keyname) for keyname, keycode in _MODIFIER_KEY_DICT.items()))
 
 def _validate_dict():
     for modifier in MyModifier: # not include aliases (such as "SHIFT")
-        assert modifier.keyname in _MODIFIER_KEY_DICT
-    for keyname in _MODIFIER_KEY_DICT:
-        assert MyModifier[keyname] # may raise 'KeyError' exception
+        assert modifier in _MODIFIER_KEY_DICT
 
 if True:
     _validate_dict()
@@ -41,7 +37,7 @@ if True:
 _BITMASK_FOR_TRUNCATE: Final[int] = 0xffffffff
 
 def setup_keyboard_listener() -> Callable[[MyModifier], bool]:
-    counter_for_listerner_thread: dict[str, int] = dict(((keyname, 0) for keyname in _MODIFIER_KEY_DICT.keys()))
+    counter_for_listerner_thread: dict[keyboard.Key, int] = dict(((key, 0) for key in _MODIFIER_KEY_DICT.values()))
     counter_for_main_thread = counter_for_listerner_thread.copy()
 
     def is_modifier_keys_pressed_since_previous_call(modifiers: MyModifier) -> bool:
@@ -51,21 +47,20 @@ def setup_keyboard_listener() -> Callable[[MyModifier], bool]:
 
     def is_key_pressed_since_previous_call(modifier: MyModifier) -> bool:
         assert 1 == len(modifier)
-        keyname = modifier.keyname
-        count = counter_for_listerner_thread[keyname] # capture the value at this timing
-        is_updated = count != counter_for_main_thread[keyname]
+        key = _MODIFIER_KEY_DICT[modifier]
+        count = counter_for_listerner_thread[key] # capture the value at this timing
+        is_updated = count != counter_for_main_thread[key]
         if is_updated:
-            counter_for_main_thread[keyname] = count
+            counter_for_main_thread[key] = count
         return is_updated
 
-    def on_press(keycode: keyboard.Key | keyboard.KeyCode | None) -> None:
-        # print(f"on_press: {keycode!r}")
-        if keycode in _KEYCODE_TO_KEYNAME:
-            keyname = _KEYCODE_TO_KEYNAME[keycode]
-            counter_for_listerner_thread[keyname] = (counter_for_listerner_thread[keyname] + 1) & _BITMASK_FOR_TRUNCATE
+    def on_press(key: keyboard.Key | keyboard.KeyCode | None) -> None:
+        # print(f"on_press: {key!r}")
+        if key in counter_for_listerner_thread:
+            counter_for_listerner_thread[key] = (counter_for_listerner_thread[key] + 1) & _BITMASK_FOR_TRUNCATE
 
-    def on_release(keycode: keyboard.Key | keyboard.KeyCode | None):
-        # print(f"on_release: {keycode!r}")
+    def on_release(key: keyboard.Key | keyboard.KeyCode | None):
+        # print(f"on_release: {key!r}")
         return
 
     listener = keyboard.Listener(
