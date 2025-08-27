@@ -33,12 +33,11 @@ _TABLE_OF_PIXEL_COLOR: Final[dict[str, list[tuple[OffsetInWindow | None, Color |
 }
 
 class Status:
-    _screenshot: Screenshot
     _flags: dict[str, bool]
 
     def __init__(self):
-        self._screenshot = Screenshot()
         self._flags = dict()
+        screenshot = Screenshot()
         for label, table in _TABLE_OF_PIXEL_COLOR.items():
             value = None # default value when no match
             for offset, expected_color, meaning in table:
@@ -50,9 +49,9 @@ class Status:
                     width = 256
                     base = offset.move(-1 * width // 2, -1 * width // 2)
                     print(f"scan for GREEN checkmask: {expected_color=!s} {offset=!r} {base=!r} {width=}")
-                    for offset2 in self._screenshot.scan_pixel(expected_color, base, width, debug_print=False):
+                    for offset2 in screenshot.scan_pixel(expected_color, base, width, debug_print=False):
                         print(f"detected: {offset2!r}")
-                color = self._screenshot.get_pixel(offset)
+                color = screenshot.get_pixel(offset)
                 if color == expected_color:
                     value = meaning
                     break

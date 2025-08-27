@@ -57,13 +57,12 @@ _TABLE_OF_PIXEL_COLOR: Final[dict[str, list[tuple[OffsetInWindow, Color | None, 
 }
 
 class Status:
-    _screenshot: Screenshot
     _flags: dict[str, bool]
 
     def __init__(self):
-        self._screenshot = Screenshot()
         self._flags = dict()
-        check_window_title(self._screenshot.window_info)
+        screenshot = Screenshot()
+        check_window_title(screenshot.window_info)
         for label, table in _TABLE_OF_PIXEL_COLOR.items():
             value = None # default value when no match
             for offset, expected_color, meaning in table:
@@ -71,7 +70,7 @@ class Status:
                 if expected_color is None:
                     value = meaning
                     break
-                color = self._screenshot.get_pixel(offset)
+                color = screenshot.get_pixel(offset)
                 if color == expected_color:
                     value = meaning
                     break
