@@ -30,7 +30,7 @@ class MyRecipeEarlyFinishError(MyError):
 #=============================================================================
 # Abort if the title of active window is not matched to expected
 
-def check_window_title(window_info=None):
+def check_window_title(window_info: MyWindowInfo | None = None):
     if window_info is None:
         window_info = get_active_window_info()
     if window_info.title != _EXPECTED_WINDOW_TITLE:
